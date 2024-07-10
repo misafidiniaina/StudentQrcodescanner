@@ -17,11 +17,12 @@ export default function App() {
           <Stack.Screen
             name="Scann"
             component={Scann}
-            options={{ headerShown: false }}
+            options={{ headerShown: true }}
           />
           <Stack.Screen name="Result" component={Result} />
         </Stack.Navigator>
       </NavigationContainer>
+      <StatusBar style="auto" />
     </SafeAreaProvider>
   );
 }
