@@ -13,6 +13,7 @@ import {
 import { useNavigation } from "@react-navigation/native";
 import Svg, { Path } from "react-native-svg";
 import TorchIcon from "../images/icons/torch.svg";
+import Login from "./Login";
 
 export default function App() {
   const navigation = useNavigation();
@@ -22,7 +23,7 @@ export default function App() {
   const [torchon, setTorchon] = useState(false);
   const [scanned, setScanned] = useState(false);
   const [scaleValue] = useState(new Animated.Value(1));
-  const [lightdisplay, setLightdisplay] = useState("none")
+  const [lightdisplay, setLightdisplay] = useState("none");
 
   useEffect(() => {
     // Define the zoom animation
@@ -68,20 +69,23 @@ export default function App() {
   }
 
   function toggleTorch() {
-    if(torchon){
-      setTorchon(false)
-      setLightdisplay("none")
-    }
-    else{
-      setTorchon(true)
-      setLightdisplay("block")
+    if (torchon) {
+      setTorchon(false);
+      setLightdisplay("none");
+    } else {
+      setTorchon(true);
+      setLightdisplay("block");
     }
   }
 
   const handleQrCodeScanned = ({ type, data }) => {
     setScanned(true);
-    navigation.navigate("Result", { data });
+    navigation.navigate("Information", { data });
     setScanned(false);
+    
+  };
+  const handleLoginButton = () => {
+    navigation.navigate("Connexion");
   };
 
   return (
@@ -95,6 +99,7 @@ export default function App() {
         }}
         onBarcodeScanned={scanned ? undefined : handleQrCodeScanned}
       >
+        <View style={styles.message}><Text style={styles.textmessage}>Scanner un QR Code</Text></View>
         <View style={styles.squareContainer}>
           <Animated.View
             style={[
@@ -117,7 +122,7 @@ export default function App() {
               width="46"
               height="40"
               fill="none"
-              style={{display: lightdisplay}}
+              style={{ display: lightdisplay }}
             >
               <Path
                 stroke="#FBFF25"
@@ -133,10 +138,13 @@ export default function App() {
               fill="none"
             >
               <Path
-                fill="#fff"
+                fill="#E3E3E3"
                 d="M7.5 24.12V45a5 5 0 0 0 5 5h10a5 5 0 0 0 5-5V24.12C30.168 22.74 35 19.3 35 12.5v-5H0v5c0 6.8 4.832 10.24 7.5 11.62ZM15 22.5h5V30h-5v-7.5ZM0 0h35v5H0V0Z"
               />
             </Svg>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.Login} onPress={handleLoginButton}>
+            <Text style={styles.text}>Se Connecter</Text>
           </TouchableOpacity>
         </View>
       </CameraView>
@@ -162,35 +170,35 @@ const styles = StyleSheet.create({
     margin: 20,
   },
   text: {
-    fontSize: 24,
+    fontSize: 13,
     fontWeight: "bold",
-    color: "white",
+    color: "black",
   },
   torch: {
     flex: 1,
-    alignSelf: "flex-end",
     alignItems: "center",
+    justifyContent: "flex-end",
+    marginBottom: "50%",
   },
   squareContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    marginTop: 200,
+    marginTop: "30%",
   },
   square: {
     width: "65%",
     aspectRatio: 1,
     backgroundColor: "transparent",
-    borderWidth: 0.5,
-    borderColor: "white",
-    borderRadius: 21,
+    borderColor: "#F2F2F2",
+    borderRadius: 15,
     overflow: "hidden",
   },
   corner: {
     position: "absolute",
     width: 60,
     height: 60,
-    borderColor: "white",
+    borderColor: "#F2F2F2",
     borderWidth: 10,
   },
   topLeft: {
@@ -221,4 +229,22 @@ const styles = StyleSheet.create({
     borderLeftWidth: 0,
     borderBottomRightRadius: 18,
   },
+  Login: {
+    position: "absolute",
+    right: 7,
+    bottom: 20,
+    padding: 10,
+    paddingHorizontal: 20,
+    backgroundColor: "#FF7B28",
+    borderRadius: 20,
+  },
+  message: {
+    marginTop: "10%",
+    backgroundColor: "rgba(2, 2, 2, 0.2)",
+    padding: 30,
+    borderRadius: 10,
+  },
+  textmessage: {
+    color: "white"
+  }
 });

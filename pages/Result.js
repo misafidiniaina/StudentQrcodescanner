@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, ActivityIndicator } from "react-native";
-import { fetchData } from "../services/FetchData";
+import { fetchData } from "../services/ApiServices";
+import Loading from "../components/Loading";
 
 const Result = ({ route }) => {
   const [donnees, setDonnees] = useState(null);
@@ -24,9 +25,7 @@ const Result = ({ route }) => {
 
   if (loading) {
     return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <ActivityIndicator size="large" color="#00ffff" />
-      </View>
+      <Loading/>
     );
   }
 
