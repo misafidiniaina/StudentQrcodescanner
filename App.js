@@ -4,14 +4,17 @@ import { StyleSheet, Text, View } from "react-native";
 import Scann from "./pages/Scann";
 import Result from "./pages/Result";
 import { NavigationContainer } from "@react-navigation/native";
-import { createStackNavigator, TransitionSpecs, CardStyleInterpolators } from "@react-navigation/stack";
+import {
+  createStackNavigator,
+  TransitionSpecs,
+  CardStyleInterpolators,
+} from "@react-navigation/stack";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import Login from "./pages/Login";
 import AdminDashboard from "./pages/AdminDashboard";
+import AddingEtudiant from "./pages/AddingEtudiant";
 
 const Stack = createStackNavigator();
-
-
 
 export default function App() {
   return (
@@ -22,21 +25,34 @@ export default function App() {
             name="Scann"
             component={Scann}
             options={{ headerShown: false }}
-            />
+          />
           <Stack.Screen
             name="Information"
             component={Result}
-            options={{ headerTitleAlign: "center", headerTitleStyle: styles.headerTitle }}
+            options={{
+              headerTitleAlign: "center",
+              headerTitleStyle: styles.headerTitle,
+            }}
           />
           <Stack.Screen
             name="Connexion"
             component={Login}
-            options={{ headerTitleAlign: "center", headerTitleStyle: styles.headerTitle}}
+            options={{ headerShown: false }}
           />
           <Stack.Screen
             name="Dashboard"
             component={AdminDashboard}
-            options={{ headerTitleAlign: "center", headerTitleStyle: styles.headerTitle}}
+            options={{
+             headerShown: false
+            }}
+          />
+          <Stack.Screen
+            name="Ajout Étudiant"
+            component={AddingEtudiant}
+            options={{
+              headerTitleAlign: "center",
+              headerTitleStyle: styles.headerTitle,
+            }}
           />
         </Stack.Navigator>
       </NavigationContainer>
@@ -54,6 +70,10 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontWeight: "bold",
-    fontSize: 30
-  }
+    fontSize: 25,
+  },
+  DashboardTitle: {
+    display: "none",
+    backgroundColor: "blue"
+  },
 });

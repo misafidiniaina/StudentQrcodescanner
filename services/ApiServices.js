@@ -70,3 +70,49 @@ export const getEtudiants = async () => {
     throw error;
   }
 };
+
+export const addEtudiant = async (
+  nom,
+  prenom,
+  dob,
+  cin,
+  cin_date,
+  tel,
+  email,
+  adresse,
+  niveau,
+  parcours,
+  matricule,
+  annee_univ
+) => {
+  try {
+    const accessToken = await getAccessToken();
+    const response = await axios.post(
+      `${EXPO_PUBLIC_API_BASE_URL}:${EXPO_PUBLIC_API_PORT}/etudiants/`,
+      {
+        nom,
+        prenom,
+        dob,
+        cin,
+        cin_date,
+        tel,
+        email,
+        adresse,
+        niveau,
+        parcours,
+        matricule,
+        annee_univ,
+      },
+      {
+        headers: {
+          accept: "application/json",
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};

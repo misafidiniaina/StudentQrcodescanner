@@ -12,8 +12,7 @@ import {
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import Svg, { Path } from "react-native-svg";
-import TorchIcon from "../images/icons/torch.svg";
-import Login from "./Login";
+
 
 export default function App() {
   const navigation = useNavigation();
@@ -235,7 +234,7 @@ const styles = StyleSheet.create({
     bottom: 20,
     padding: 10,
     paddingHorizontal: 20,
-    backgroundColor: "#FF7B28",
+    backgroundColor: "#FF9538",
     borderRadius: 20,
   },
   message: {
