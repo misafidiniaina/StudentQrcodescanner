@@ -1,0 +1,14 @@
+  const [matricule, setMatricule] = useState("");
+  const [nom, setNom] = useState("Zaho");
+  const [prenom, setPrenom] = useState("Me");
+  const [dob, setDof] = useState("2024-07-12T12:14:59.302Z");
+  const [niveau, setNiveau] = useState("L2");
+  const [parcours, setParcous] = useState("ASR");
+  const [email, setEmail] = useState("example@gmail.com");
+  const [tel, setTel] = useState("0343434434");
+  const [cin, setCin] = useState("101251245123");
+  const [cin_date, setCin_date] = useState("2024-07-12T12:14:59.302Z");
+  const [adresse, setAdresse] = useState("Tanambao-");
+  const [annee_univ, setAnnee_univ] = useState("2023-2024");
+
+  <Icon name="calendar-today" size={45} color="#007BFF" />

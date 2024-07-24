@@ -18,11 +18,12 @@ import { LinearGradient } from "expo-linear-gradient";
 
 const AdminDashboard = () => {
   const navigation = useNavigation();
-
   const [students, setStudents] = useState(null);
   const [loading, setLoading] = useState(true);
   const [etudiantNumber, setEtudiantNumber] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
+  const [openSwipeableId, setOpenSwipeableId] = useState(null);
+  const swipeableRefs = useRef({});
 
   useEffect(() => {
     getStudents();
@@ -42,8 +43,9 @@ const AdminDashboard = () => {
   };
 
   const handleStudentClick = (id) => {
-    Alert.alert("voclique etudiant ");
+    Alert.alert("voclique etudiant avec ID: "+ id);
   };
+
   const handleDelete = (id) => {
     Alert.alert(id.toString());
     setStudents(students.filter((student) => student.id !== id));
@@ -51,10 +53,12 @@ const AdminDashboard = () => {
 
   const handleSearch = (query) => {
     setSearchQuery(query);
+    closeSwipeable(openSwipeableId);
   };
 
   const handleAddButton = () => {
     navigation.navigate("Ajout Étudiant");
+    closeSwipeable(openSwipeableId);
   };
 
   const filteredStudents = students?.filter((student) =>
@@ -63,13 +67,19 @@ const AdminDashboard = () => {
       .includes(searchQuery.toLowerCase())
   );
 
-  const [currentlyOpenSwipeable, setCurrentlyOpenSwipeable] = useState(null);
-
-  const handleSwipeOpen = (swipeableRef) => {
-    if (currentlyOpenSwipeable && currentlyOpenSwipeable !== swipeableRef) {
-      currentlyOpenSwipeable.close();
+  const closeSwipeable = (id) => {
+    if (swipeableRefs.current[id]) {
+      swipeableRefs.current[id].close();
     }
-    setCurrentlyOpenSwipeable(swipeableRef);
+  };
+
+  const onSwipeableWillOpen = async (id) => {
+    // Close the previously open swipeable if necessary
+    if (openSwipeableId && openSwipeableId !== id) {
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      closeSwipeable(openSwipeableId);
+    }
+    setOpenSwipeableId(id);
   };
 
   const renderRightActions = (id) => (
@@ -82,16 +92,26 @@ const AdminDashboard = () => {
       </RectButton>
     </View>
   );
-  const swipeableRef = useRef(null);
-  
-  const renderItem = ({ item }) => {
-    return (
-      <Swipeable
-        ref={swipeableRef}
-        onSwipeableOpen={() => handleSwipeOpen(swipeableRef.current)}
-        renderRightActions={() => renderRightActions(item.id)}
+
+  const renderItem = ({ item }) => (
+    <Swipeable
+      ref={(ref) => (swipeableRefs.current[item.id] = ref)}
+      friction={3}
+      overshootRight={true}
+      renderRightActions={() => renderRightActions(item.id)}
+      onSwipeableOpenStartDrag={() => onSwipeableWillOpen(item.id)}
+      onSwipeableClose={() => {
+        if (openSwipeableId === item.id) {
+          setOpenSwipeableId(null);
+        }
+      }}
+    >
+      <TouchableOpacity
+        style={[styles.studentContainer, styles.shadow]}
+        activeOpacity={1}
+        onPress={() => handleStudentClick(item.id)}
       >
-        <View style={[styles.studentContainer, styles.shadow]}>
+        <View style={[styles.studentInfoContainer]}>
           <View style={styles.left}>
             <Text style={styles.matricule}>{item.matricule}</Text>
             <View style={styles.class}>
@@ -109,9 +129,9 @@ const AdminDashboard = () => {
             </Text>
           </View>
         </View>
-      </Swipeable>
-    );
-  };
+      </TouchableOpacity>
+    </Swipeable>
+  );
 
   if (loading) {
     return <Loading />;
@@ -148,7 +168,6 @@ const AdminDashboard = () => {
           renderItem={renderItem}
           keyExtractor={(item) => item.id.toString()}
           contentContainerStyle={styles.list}
-          refreshing={true}
         />
       ) : (
         <View style={styles.noResultsContainer}>
@@ -219,13 +238,17 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   studentContainer: {
-    padding: 12,
     marginBottom: 10,
     marginHorizontal: 15,
     justifyContent: "space-between",
-    flexDirection: "row",
     borderRadius: 10,
     backgroundColor: "white",
+  },
+  studentInfoContainer: {
+    padding: 12,
+    justifyContent: "space-between",
+    flexDirection: "row",
+    borderRadius: 10,
   },
   left: {
     width: "20%",
@@ -282,10 +305,11 @@ const styles = StyleSheet.create({
   },
   actionsContainer: {
     flexDirection: "row",
-    width: 130, // Adjust based on the number of buttons
+    width: 140, // Adjust based on the number of buttons
     alignItems: "flex-start",
     paddingTop: 1,
     justifyContent: "flex-start",
+    marginHorizontal: -10,
   },
   deleteButton: {
     backgroundColor: "red",
