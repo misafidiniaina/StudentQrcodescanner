@@ -116,3 +116,22 @@ export const addEtudiant = async (
     throw error;
   }
 };
+
+export const deleteEtudiant = async (idEtudiant) => {
+  try {
+    const access_token = await getAccessToken();
+    const response = await axios.delete(
+      `${EXPO_PUBLIC_API_BASE_URL}:${EXPO_PUBLIC_API_PORT}/etudiants/${idEtudiant}`,
+      {
+        headers: {
+          accept: "application/json",
+          Authorization: `Bearer ${access_token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    return response.data;
+  } catch (error){
+    throw error;
+  }
+};

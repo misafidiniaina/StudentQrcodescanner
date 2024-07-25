@@ -9,12 +9,13 @@ import {
   TouchableOpacity,
   Alert,
 } from "react-native";
-import { getEtudiants } from "../services/ApiServices";
+import { deleteEtudiant, getEtudiants } from "../services/ApiServices";
 import Loading from "../components/Loading";
 import Icon from "react-native-vector-icons/Ionicons";
 import { useNavigation } from "@react-navigation/native";
 import { Swipeable, RectButton } from "react-native-gesture-handler";
 import { LinearGradient } from "expo-linear-gradient";
+import { colors } from "../utils/Utils";
 
 const AdminDashboard = () => {
   const navigation = useNavigation();
@@ -46,8 +47,14 @@ const AdminDashboard = () => {
     Alert.alert("voclique etudiant avec ID: "+ id);
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     Alert.alert(id.toString());
+    try{
+      const result = await deleteEtudiant(id);
+    }
+    catch(error){
+      console.error("error:", error)
+    }
     setStudents(students.filter((student) => student.id !== id));
   };
 
@@ -349,7 +356,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     right: 20,
     bottom: 20,
-    backgroundColor: "#FF9538",
+    backgroundColor: colors.primary,
     borderRadius: 100,
     textAlign: "center",
     width: 60,

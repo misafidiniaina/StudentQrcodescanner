@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import {
   View,
   StyleSheet,
@@ -17,6 +17,8 @@ import {
 } from "react-native-paper";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import { Picker } from "@react-native-picker/picker";
+import { colors } from "../utils/Utils";
+import { LinearGradient } from "expo-linear-gradient";
 
 // Helper function to format date as DD/MM/YYYY
 const formatDate = (date) => {
@@ -44,18 +46,20 @@ const AddingEtudiant = () => {
   const [parcours, setParcours] = useState("ASR");
   const [email, setEmail] = useState("");
   const [tel, setTel] = useState("");
-  const [cin, setCin] = useState("101251245123");
+  const [cin, setCin] = useState("");
   const [cin_date, setCin_date] = useState(new Date());
-  const [adresse, setAdresse] = useState("Tanambao-");
+  const [adresse, setAdresse] = useState("");
   const [annee_univ, setAnnee_univ] = useState("2023-2024");
 
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showCinDatePicker, setShowCinDatePicker] = useState(false);
-  const [dateInput, setDateInput] = useState(formatDate(dob));
-  const [cinDateInput, setCinDateInput] = useState(formatDate(cin_date));
+  const [dateInput, setDateInput] = useState("");
+  const [cinDateInput, setCinDateInput] = useState("");
   const [selectedValue, setSelectedValue] = useState("L1");
   const [radioselectedValue, setRadioselectedValue] = useState(null);
   const [listType, setListType] = useState("premierannee");
+  const textInputRef = useRef(null);
+  const matriculeRef = useRef(null);
 
   const normalOptions = [
     { label: "IG", value: "IG" },
@@ -72,11 +76,15 @@ const AddingEtudiant = () => {
 
   const RadioButton = ({ label, value, selected, onPress }) => {
     return (
-      <TouchableOpacity onPress={onPress} style={styles.radioButtonContainer} activeOpacity={0.9}>
+      <TouchableOpacity
+        onPress={onPress}
+        style={styles.radioButtonContainer}
+        activeOpacity={0.9}
+      >
         <Icon
           name={selected ? "radio-button-checked" : "radio-button-unchecked"}
           size={17}
-          color="#000"
+          color={colors.primary}
         />
         <Text style={styles.radioButtonText}>{label}</Text>
       </TouchableOpacity>
@@ -84,7 +92,7 @@ const AddingEtudiant = () => {
   };
 
   const handleAddEtudiant = async () => {
-    try {
+    /*try {
       const result = await addEtudiant(
         nom,
         prenom,
@@ -102,9 +110,39 @@ const AddingEtudiant = () => {
       Alert.alert(result);
     } catch (error) {
       Alert.alert(error);
-    }
+    }*/
+    const message = [
+      `Matricule: ${matricule}`,
+      `Nom: ${nom}`,
+      `Prénom: ${prenom}`,
+      `Date of Birth: ${formatDate(dob)}`, // Make sure to format the date properly
+      `CIN: ${cin}`,
+      `CIN Date: ${formatDate(cin_date)}`,
+      `Téléphone: ${tel}`,
+      `Email: ${email}`,
+      `Adresse: ${adresse}`,
+      `Niveau: ${niveau}`,
+      `Parcours: ${parcours}`,
+      `Année Universitaire: ${annee_univ}`,
+    ].join("\n");
+    Alert.alert("Student Information", message);
   };
 
+  const handleCancelButton = () => {
+    setNom("");
+    setPrenom("");
+    setMatricule("");
+    setDob("");
+    setCin("");
+    setCin_date("");
+    setTel("");
+    setEmail("");
+    setAdresse("");
+    setNiveau("");
+    setParcours("");
+    setAnnee_univ("2023-2024");
+   // matriculeRef.current.focus();
+  };
   const onChangeDob = (event, selectedDate) => {
     const currentDate = selectedDate || dob;
     setShowDatePicker(Platform.OS === "ios");
@@ -121,29 +159,81 @@ const AddingEtudiant = () => {
 
   const handleDateInputChange = (text, setInput, setDate) => {
     // Remove non-numeric characters except slashes
-    const cleanedText = text.replace(/[^0-9\/]/g, "");
+    const cleanedText = text.replace(/[^0-9]/g, "");
 
     // Limit input length
-    if (cleanedText.length <= 10) {
+    if (cleanedText.length <= 8) {
+      // Changed from 10 to 8 to handle case when user is typing
       // Format as DD/MM/YYYY
-      const formattedText = cleanedText
+      let formattedText = cleanedText
         .replace(/(\d{2})(\d{1,2})/, "$1/$2") // Add slash after day
         .replace(/(\d{2}\/)(\d{2})(\d{1,4})/, "$1$2/$3") // Add slash after month
-        .substring(0, 10);
+        .substring(0, 10); // Ensure length of 10
 
       setInput(formattedText);
 
       // Update date if the text input is valid
       if (formattedText.length === 10) {
-        // Expecting DD/MM/YYYY format
         const parsedDate = parseDate(formattedText);
         if (isValidDate(parsedDate)) {
-          setDate(parsedDate); // miankina amze format anah date any  @ back ny algorithm @ formatagenito
+          setDate(parsedDate); // Update date state
         }
       }
     }
   };
 
+  const handleSelectionChange = (event) => {
+    const { selection } = event.nativeEvent;
+    let newSelection = { start: 0, end: 2 };
+
+    if (selection.start >= 3 && selection.start <= 5) {
+      newSelection = { start: 3, end: 5 };
+    } else if (selection.start >= 6) {
+      newSelection = { start: 6, end: 10 };
+    }
+
+    // Adjust cursor position
+    if (textInputRef.current) {
+      textInputRef.current.setNativeProps({
+        selection: newSelection,
+      });
+    }
+  };
+
+  const handleNumInput = (text) => {
+    let numericText = text.replace(/[^0-9]/g, "").slice(0, 10);
+
+    let formattedText = numericText;
+    if (numericText.length > 3) {
+      formattedText = numericText.slice(0, 3) + " " + numericText.slice(3);
+    }
+    if (numericText.length > 5) {
+      formattedText = formattedText.slice(0, 6) + " " + formattedText.slice(6);
+    }
+    if (numericText.length > 8) {
+      formattedText =
+        formattedText.slice(0, 10) + " " + formattedText.slice(10);
+    }
+    setTel(formattedText);
+  };
+
+  const handleCinInput = (text) => {
+    let numericText = text.replace(/[^0-9]/g, "").slice(0, 12);
+
+    // Format the text to "XXX XXX XXX XXX"
+    let formattedText = numericText;
+    if (numericText.length > 3) {
+      formattedText = numericText.slice(0, 3) + " " + numericText.slice(3);
+    }
+    if (numericText.length > 6) {
+      formattedText = formattedText.slice(0, 7) + " " + formattedText.slice(7);
+    }
+    if (numericText.length > 9) {
+      formattedText =
+        formattedText.slice(0, 11) + " " + formattedText.slice(11);
+    }
+    setCin(formattedText);
+  };
   return (
     <PaperProvider>
       <ScrollView style={styles.container}>
@@ -152,7 +242,8 @@ const AddingEtudiant = () => {
           style={styles.input}
           value={matricule}
           onChangeText={setMatricule}
-          activeUnderlineColor="#FF9538"
+          activeUnderlineColor={colors.primary}
+          ref={matriculeRef}
         />
 
         <TextInput
@@ -160,7 +251,7 @@ const AddingEtudiant = () => {
           style={styles.input}
           value={nom}
           onChangeText={setNom}
-          activeUnderlineColor="#FF9538"
+          activeUnderlineColor={colors.primary}
         />
 
         <TextInput
@@ -168,7 +259,7 @@ const AddingEtudiant = () => {
           style={styles.input}
           value={prenom}
           onChangeText={setPrenom}
-          activeUnderlineColor="#FF9538"
+          activeUnderlineColor={colors.primary}
         />
 
         <View style={styles.datePickerContainer}>
@@ -179,17 +270,18 @@ const AddingEtudiant = () => {
             onChangeText={(text) =>
               handleDateInputChange(text, setDateInput, setDob)
             }
-            placeholder="DD/MM/YYYY"
+            placeholder="JJ/MM/AAAA"
             keyboardType="numeric"
             editable={!showDatePicker} // Disable input when date picker is shown
-            activeUnderlineColor="#FF9538"
+            activeUnderlineColor={colors.primary}
+            onSelectionChange={handleSelectionChange}
           />
           <TouchableOpacity
             style={styles.dateBtn}
             onPress={() => setShowDatePicker(true)}
             activeOpacity={0.9}
           >
-            <Icon name="calendar-today" size={50} color="#FF9538" />
+            <Icon name="calendar-today" size={50} color={colors.primary} />
           </TouchableOpacity>
         </View>
 
@@ -199,7 +291,6 @@ const AddingEtudiant = () => {
             mode="date"
             display="default"
             onChange={onChangeDob}
-
           />
         )}
 
@@ -210,7 +301,6 @@ const AddingEtudiant = () => {
               selectedValue={selectedValue}
               style={styles.picker}
               onValueChange={(itemValue) => {
-                console.log("Selected value:", itemValue);
                 setSelectedValue(itemValue);
                 if (itemValue === "L1") {
                   setListType("premierannee");
@@ -234,7 +324,6 @@ const AddingEtudiant = () => {
                 value={option.value}
                 selected={radioselectedValue === option.value}
                 onPress={() => {
-                  console.log("Selected radio value:", option.value);
                   setRadioselectedValue(option.value);
                 }}
               />
@@ -251,25 +340,27 @@ const AddingEtudiant = () => {
           autoCompleteType="email"
           textContentType="emailAddress"
           style={styles.input}
-          activeUnderlineColor="#FF9538"
+          activeUnderlineColor={colors.primary}
         />
 
         <TextInput
           label="Numero Téléphone"
           value={tel}
-          onChangeText={setTel}
+          onChangeText={handleNumInput}
           keyboardType="numeric"
           style={styles.input}
-          activeUnderlineColor="#FF9538"
+          activeUnderlineColor={colors.primary}
+          maxLength={13}
         />
 
         <TextInput
           label="Numero de CIN"
           value={cin}
-          onChangeText={setCin}
+          onChangeText={handleCinInput}
           keyboardType="numeric"
           style={styles.input}
-          activeUnderlineColor="#FF9538"
+          activeUnderlineColor={colors.primary}
+          maxLength={15}
         />
 
         <View style={styles.datePickerContainer}>
@@ -280,17 +371,17 @@ const AddingEtudiant = () => {
             onChangeText={(text) =>
               handleDateInputChange(text, setCinDateInput, setCin_date)
             }
-            placeholder="DD/MM/YYYY"
+            placeholder="JJ/MM/AAAA"
             keyboardType="numeric"
             editable={!showCinDatePicker} // Disable input when date picker is shown
-            activeUnderlineColor="#FF9538"
+            activeUnderlineColor={colors.primary}
           />
           <TouchableOpacity
             style={styles.dateBtn}
             onPress={() => setShowCinDatePicker(true)}
             activeOpacity={0.9}
           >
-            <Icon name="calendar-today" size={50} color="#FF9538" />
+            <Icon name="calendar-today" size={50} color={colors.primary} />
           </TouchableOpacity>
         </View>
 
@@ -304,11 +395,11 @@ const AddingEtudiant = () => {
         )}
 
         <TextInput
-          label="Numero de CIN"
+          label="Adresse"
           value={adresse}
           onChangeText={setAdresse}
           style={styles.input}
-          activeUnderlineColor="#FF9538"
+          activeUnderlineColor={colors.primary}
         />
 
         <TextInput
@@ -316,19 +407,35 @@ const AddingEtudiant = () => {
           value={annee_univ}
           onChangeText={setAnnee_univ}
           style={styles.input}
-          activeUnderlineColor="#FF9538"
+          activeUnderlineColor={colors.primary}
         />
 
-        <Button
-          mode="contained"
-          onPress={handleAddEtudiant}
-          style={styles.button}
-          textColor="black"
-          fontWeight="100"
-          
-        >
-          Add
-        </Button>
+        <View style={styles.buttonContainer}>
+          <Button
+            mode="outlined"
+            textColor={colors.primary}
+            style={styles.cancelButton}
+            onPress={handleCancelButton}
+          >
+            Annuler
+          </Button>
+          <LinearGradient
+            colors={["#FF9538", "#FF5F6D"]} // Gradient colors
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.addbutton}
+          >
+            <Button
+              mode="contained"
+              onPress={handleAddEtudiant}
+              style={styles.button}
+              textColor="black"
+              icon="account-plus"
+            >
+              Ajouter
+            </Button>
+          </LinearGradient>
+        </View>
       </ScrollView>
     </PaperProvider>
   );
@@ -337,21 +444,44 @@ const AddingEtudiant = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: 25,
-    paddingVertical: 20,
+    paddingHorizontal: 15,
+    paddingVertical: 10,
   },
   input: {
     width: "100%",
     marginVertical: 5,
     backgroundColor: "white",
-    borderColor: "#FF9538",
+    borderColor: colors.primary,
     borderWidth: 0,
   },
+  buttonContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 10,
+  },
   button: {
+    marginTop: 0,
+    marginBottom: 0,
+    backgroundColor: "transparent",
+    paddingVertical: 2,
+    width: "100%",
+  },
+  addbutton: {
+    marginBottom: 30,
+    marginTop: 20,
+    borderRadius: 50,
+    width: "50%",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  cancelButton: {
     marginTop: 20,
     marginBottom: 30,
-    backgroundColor: "#FF9538",
-    fontWeight: "bold"
+    borderColor: colors.primary,
+    borderWidth: 2,
+    fontWeight: "bolder",
+    width: "45%",
   },
   datePickerContainer: {
     flexDirection: "row",
@@ -370,31 +500,37 @@ const styles = StyleSheet.create({
     height: 50,
     width: 50,
     borderRadius: 25, // Makes the button circular
-    borderColor: "#FF9538",
+    borderColor: colors.primary,
     borderWidth: 0, // Border around the button
   },
   picker: {
     width: "100%",
-    borderWidth: 1,
-    borderColor: "gray",
     alignItems: "center",
     justifyContent: "center",
   },
   classLabel: {
     marginTop: 5,
-    marginBottom: -2,
-    marginLeft: 10,
+    marginBottom: -25,
+    marginLeft: 15,
+    zIndex: 9,
+    fontSize: 12,
+    color: "gray",
   },
   class: {
     flexDirection: "row",
     alignItems: "space-between",
-  },
-  niveauContainer: {
-    width: "32%",
+    backgroundColor: "white",
+    marginBottom: 4,
+    marginTop: 5,
+    paddingTop: 10,
     borderBottomWidth: 1,
     borderColor: "gray",
     borderRadius: 5,
     overflow: "hidden",
+  },
+  niveauContainer: {
+    width: "33%",
+    marginBottom: -5,
   },
   radioButtonParcous: {
     flexDirection: "row",
@@ -405,7 +541,7 @@ const styles = StyleSheet.create({
   radioButtonContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 15,
+    marginBottom: 10,
     marginRight: 25,
   },
   radioButtonText: {

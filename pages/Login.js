@@ -11,6 +11,7 @@ import {
 import { login } from "../services/ApiServices";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Loading from "../components/Loading";
+import { colors } from "../utils/Utils";
 
 const LoginScreen = ({ navigation }) => {
   const [username, setUsername] = useState("");
@@ -116,7 +117,7 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#FF9538",
+    backgroundColor: colors.primary,
     textAlign: "center",
     marginVertical: 30,
     borderRadius: 25,

@@ -12,7 +12,7 @@ import {
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import Svg, { Path } from "react-native-svg";
-
+import { colors } from "../utils/Utils";
 
 export default function App() {
   const navigation = useNavigation();
@@ -81,7 +81,6 @@ export default function App() {
     setScanned(true);
     navigation.navigate("Information", { data });
     setScanned(false);
-    
   };
   const handleLoginButton = () => {
     navigation.navigate("Connexion");
@@ -98,7 +97,9 @@ export default function App() {
         }}
         onBarcodeScanned={scanned ? undefined : handleQrCodeScanned}
       >
-        <View style={styles.message}><Text style={styles.textmessage}>Scanner un QR Code</Text></View>
+        <View style={styles.message}>
+          <Text style={styles.textmessage}>Scanner un QR Code</Text>
+        </View>
         <View style={styles.squareContainer}>
           <Animated.View
             style={[
@@ -115,33 +116,37 @@ export default function App() {
           </Animated.View>
         </View>
         <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.torch} onPress={toggleTorch}>
-            <Svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="46"
-              height="40"
-              fill="none"
-              style={{ display: lightdisplay }}
-            >
-              <Path
-                stroke="#FBFF25"
-                stroke-linecap="round"
-                stroke-width="4"
-                d="m2.093 23.306 7.68 5.377m26.082-.017 7.68-5.378m-5.382-13.125-7.923 14.9m-7.5-1.775V2.663m-7.077 22.4-7.923-14.9"
-              />
-            </Svg>
-            <Svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="35"
-              height="75"
-              fill="none"
-            >
-              <Path
-                fill="#E3E3E3"
-                d="M7.5 24.12V45a5 5 0 0 0 5 5h10a5 5 0 0 0 5-5V24.12C30.168 22.74 35 19.3 35 12.5v-5H0v5c0 6.8 4.832 10.24 7.5 11.62ZM15 22.5h5V30h-5v-7.5ZM0 0h35v5H0V0Z"
-              />
-            </Svg>
-          </TouchableOpacity>
+          <View style={styles.torchContainer}>
+            <TouchableOpacity style={styles.torch} onPress={toggleTorch}>
+              <Svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="50"
+                height="40"
+                fill="none"
+                style={{ display: lightdisplay }}
+              >
+                <Path
+                  stroke="#FBFF25"
+                  stroke-linecap="round"
+                  stroke-width="4"
+                  d="m2.093 23.306 7.68 5.377m26.082-.017 7.68-5.378m-5.382-13.125-7.923 14.9m-7.5-1.775V2.663m-7.077 22.4-7.923-14.9"
+                />
+              </Svg>
+              <Svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="35"
+                height="35"
+                fill="none"
+                viewBox="0 0 21 22"
+              >
+                <Path
+                  fill="#fff"
+                  d="M7.248 9.624.861 15.836c-.405.394-.672.898-.742 1.4-.07.503.064.963.372 1.28l2.317 2.382c.308.316.764.462 1.268.407.504-.056 1.015-.309 1.42-.703l6.388-6.213c1.04.225 3.212.353 5.292-1.67l1.53-1.487-8.112-8.34-1.53 1.487c-2.08 2.023-2.012 4.198-1.816 5.245Zm2.234 1.305 1.159 1.191-2.294 2.232-1.16-1.192 2.295-2.231ZM12.888.66 21 9l-1.53 1.488-8.111-8.34L12.887.66Z"
+                />
+              </Svg>
+            </TouchableOpacity>
+          </View>
+
           <TouchableOpacity style={styles.Login} onPress={handleLoginButton}>
             <Text style={styles.text}>Se Connecter</Text>
           </TouchableOpacity>
@@ -160,13 +165,33 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "red",
   },
   buttonContainer: {
     flex: 1,
     flexDirection: "row",
     backgroundColor: "transparent",
+    alignItems: "flex-end",
     margin: 20,
+    position: "static",
+    left: 0,
+    bottom: 0,
+    width: "100%",
+  },
+  loginContainer: {
+    backgroundColor: "green",
+    padding: 20,
+  },
+  torchContainer: {
+    height: "50%",
+    justifyContent: "center",
+    alignItems: "center",
+    position: "absolute",
+    left: 25,
+    bottom: 10,
+    width: 65,
+    height: 65,
+    borderRadius: 50,
+    backgroundColor: "rgba(2, 2, 2, 0.5)",
   },
   text: {
     fontSize: 13,
@@ -176,8 +201,7 @@ const styles = StyleSheet.create({
   torch: {
     flex: 1,
     alignItems: "center",
-    justifyContent: "flex-end",
-    marginBottom: "50%",
+    justifyContent: "center",
   },
   squareContainer: {
     flex: 1,
@@ -230,7 +254,7 @@ const styles = StyleSheet.create({
   },
   Login: {
     position: "absolute",
-    right: 7,
+    right: 20,
     bottom: 20,
     padding: 10,
     paddingHorizontal: 20,
@@ -244,6 +268,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   textmessage: {
-    color: "white"
-  }
+    color: "white",
+  },
 });
