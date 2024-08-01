@@ -577,7 +577,7 @@ const styles = StyleSheet.create({
     color: "#595959",
   },
   inputContainer: {
-    paddingLeft: 5,
+    paddingLeft: 0,
   },
   anarana: {
     width: "100%",
@@ -601,8 +601,7 @@ const styles = StyleSheet.create({
   },
   annee_univ: {
     marginBottom: 20,
-    marginLeft: 5,
-    width: "98%"
+    width: "100%"
   },
   buttonContainer: {
     flexDirection: "row",
@@ -697,7 +696,6 @@ const styles = StyleSheet.create({
     marginBottom: 4,
     marginTop: 5,
     paddingTop: 10,
-    marginLeft: 5,
     borderWidth: 1,
     borderColor: "black",
     borderRadius: 10,
