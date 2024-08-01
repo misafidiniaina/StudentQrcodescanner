@@ -15,12 +15,24 @@ import {
   TextInput,
   Button,
   Provider as PaperProvider,
+  DefaultTheme,
 } from "react-native-paper";
+
 import Icon from "react-native-vector-icons/MaterialIcons";
 import { Picker } from "@react-native-picker/picker";
 import { colors } from "../utils/Utils";
 import { LinearGradient } from "expo-linear-gradient";
 import * as ImagePicker from "expo-image-picker";
+import profilePlaceholder from "../images/profile_placeholder.jpg";
+
+const theme = {
+  ...DefaultTheme,
+  roundness: 10, // Set the desired border radius
+  colors: {
+    ...DefaultTheme.colors,
+    primary: "#3498db", // Example primary color
+  },
+};
 
 // Helper function to format date as DD/MM/YYYY
 const formatDate = (date) => {
@@ -289,197 +301,233 @@ const AddingEtudiant = () => {
     setCin(formattedText);
   };
   return (
-    <PaperProvider>
+    <PaperProvider theme={theme}>
       <ScrollView style={styles.container}>
-        <TextInput
-          mode="outlined"
-          label="Numéro Matricule"
-          style={styles.input}
-          value={matricule}
-          onChangeText={setMatricule}
-          activeOutlineColor={colors.primary}
-          ref={matriculeRef}
-        />
-
-        <TextInput
-          mode="outlined"
-          label="Nom"
-          style={styles.input}
-          value={nom}
-          onChangeText={setNom}
-          activeOutlineColor={colors.primary}
-        />
-
-        <View style={styles.contFainer}>
-          <TouchableOpacity onPress={openImagePicker} activeOpacity={0.7}>
-            <Icon name="photo" size={50} color={colors.primary} />
-          </TouchableOpacity>
-          {image && <Image source={{ uri: image }} style={styles.image} />}
-        </View>
-
-        <TextInput
-          mode="outlined"
-          label="Prénom"
-          style={styles.input}
-          value={prenom}
-          onChangeText={setPrenom}
-          activeOutlineColor={colors.primary}
-        />
-
-        <View style={styles.datePickerContainer}>
-          <TextInput
-            mode="outlined"
-            label="Date of Birth"
-            style={styles.dateInput}
-            value={dateInput}
-            onChangeText={(text) =>
-              handleDateInputChange(text, setDateInput, setDob)
-            }
-            placeholder="JJ/MM/AAAA"
-            keyboardType="numeric"
-            editable={!showDatePicker} // Disable input when date picker is shown
-            activeOutlineColor={colors.primary}
-            onSelectionChange={handleSelectionChange}
-          />
+        <View style={[styles.contFainer, { marginTop: 15 }]}>
+          {image ? (
+            <Image source={{ uri: image }} style={styles.image} />
+          ) : (
+            <Image source={profilePlaceholder} style={styles.image} />
+          )}
           <TouchableOpacity
-            style={styles.dateBtn}
-            onPress={() => setShowDatePicker(true)}
-            activeOpacity={0.9}
+            onPress={openImagePicker}
+            activeOpacity={0.7}
+            style={styles.addPhotot}
           >
-            <Icon name="calendar-today" size={50} color={colors.primary} />
+            <Icon name="add-a-photo" size={27} color={colors.primary} />
           </TouchableOpacity>
         </View>
+        <View style={[styles.section, { marginTop: 40 }]}>
+          <Text style={styles.sectionTitle}>Information personnelle</Text>
+          <View style={styles.inputContainer}>
+            <TextInput
+              mode="outlined"
+              label="Numéro Matricule"
+              style={styles.input}
+              value={matricule}
+              onChangeText={setMatricule}
+              activeOutlineColor={colors.primary}
+              outlineColor="#756C66"
+              ref={matriculeRef}
+            />
 
-        {showDatePicker && (
-          <DateTimePicker
-            value={dob}
-            mode="date"
-            display="default"
-            onChange={onChangeDob}
-          />
-        )}
-
-        <Text style={styles.classLabel}>Classe</Text>
-        <View style={styles.class}>
-          <View style={styles.niveauContainer}>
-            <Picker
-              selectedValue={selectedValue}
-              style={styles.picker}
-              onValueChange={(itemValue) => {
-                setSelectedValue(itemValue);
-                if (itemValue === "L1") {
-                  setListType("premierannee");
-                } else {
-                  setListType("normal");
-                }
-              }}
-            >
-              <Picker.Item label="L1" value="L1" />
-              <Picker.Item label="L2" value="L2" />
-              <Picker.Item label="L3" value="L3" />
-              <Picker.Item label="M1" value="M1" />
-              <Picker.Item label="M2" value="M2" />
-            </Picker>
-          </View>
-          <View style={styles.radioButtonParcous}>
-            {options.map((option) => (
-              <RadioButton
-                key={option.value}
-                label={option.label}
-                value={option.value}
-                selected={radioselectedValue === option.value}
-                onPress={() => {
-                  setRadioselectedValue(option.value);
-                }}
+            <View style={styles.anarana}>
+              <TextInput
+                mode="outlined"
+                label="Nom"
+                style={[styles.input, styles.namewidth]}
+                value={nom}
+                onChangeText={setNom}
+                activeOutlineColor={colors.primary}
+                outlineColor="#756C66"
               />
-            ))}
+
+              <TextInput
+                mode="outlined"
+                label="Prénom"
+                style={[styles.input, styles.namewidth]}
+                value={prenom}
+                onChangeText={setPrenom}
+                activeOutlineColor={colors.primary}
+                outlineColor="#756C66"
+              />
+            </View>
+
+            <View style={styles.datePickerContainer}>
+              <TextInput
+                mode="outlined"
+                label="Date of Birth"
+                style={styles.dateInput}
+                value={dateInput}
+                onChangeText={(text) =>
+                  handleDateInputChange(text, setDateInput, setDob)
+                }
+                placeholder="JJ/MM/AAAA"
+                keyboardType="numeric"
+                editable={!showDatePicker} // Disable input when date picker is shown
+                activeOutlineColor={colors.primary}
+                outlineColor="#756C66"
+                onSelectionChange={handleSelectionChange}
+              />
+              <TouchableOpacity
+                style={styles.dateBtn}
+                onPress={() => setShowDatePicker(true)}
+                activeOpacity={0.9}
+              >
+                <Icon name="calendar-today" size={50} color={colors.primary} />
+              </TouchableOpacity>
+            </View>
+
+            {showDatePicker && (
+              <DateTimePicker
+                value={dob}
+                mode="date"
+                display="default"
+                onChange={onChangeDob}
+              />
+            )}
           </View>
         </View>
 
-        <TextInput
-          mode="outlined"
-          label="Email"
-          value={email}
-          onChangeText={setEmail}
-          keyboardType="email-address"
-          autoCapitalize="none"
-          autoCompleteType="email"
-          textContentType="emailAddress"
-          style={styles.input}
-          activeOutlineColor={colors.primary}
-        />
-
-        <TextInput
-          mode="outlined"
-          label="Numero Téléphone"
-          value={tel}
-          onChangeText={handleNumInput}
-          keyboardType="numeric"
-          style={styles.input}
-          activeOutlineColor={colors.primary}
-          maxLength={13}
-        />
-
-        <TextInput
-          mode="outlined"
-          label="Numero de CIN"
-          value={cin}
-          onChangeText={handleCinInput}
-          keyboardType="numeric"
-          style={styles.input}
-          activeOutlineColor={colors.primary}
-          maxLength={15}
-        />
-
-        <View style={styles.datePickerContainer}>
-          <TextInput
-            mode="outlined"
-            label="CIN Date"
-            style={styles.dateInput}
-            value={cinDateInput}
-            onChangeText={(text) =>
-              handleDateInputChange(text, setCinDateInput, setCin_date)
-            }
-            placeholder="JJ/MM/AAAA"
-            keyboardType="numeric"
-            editable={!showCinDatePicker} // Disable input when date picker is shown
-            activeOutlineColor={colors.primary}
-          />
-          <TouchableOpacity
-            style={styles.dateBtn}
-            onPress={() => setShowCinDatePicker(true)}
-            activeOpacity={0.9}
-          >
-            <Icon name="calendar-today" size={50} color={colors.primary} />
-          </TouchableOpacity>
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Informatin pédagogique</Text>
+          <View styles={styles.inputContainer}>
+            <TextInput
+              mode="outlined"
+              label="Année universitaire"
+              value={annee_univ}
+              onChangeText={setAnnee_univ}
+              style={[styles.input, styles.annee_univ]}
+              activeOutlineColor={colors.primary}
+              outlineColor="#756C66"
+            />
+            <Text style={styles.classLabel}>Classe</Text>
+            <View style={styles.class}>
+              <View style={styles.niveauContainer}>
+                <Picker
+                  selectedValue={selectedValue}
+                  style={styles.picker}
+                  onValueChange={(itemValue) => {
+                    setSelectedValue(itemValue);
+                    if (itemValue === "L1") {
+                      setListType("premierannee");
+                    } else {
+                      setListType("normal");
+                    }
+                  }}
+                >
+                  <Picker.Item label="L1" value="L1" />
+                  <Picker.Item label="L2" value="L2" />
+                  <Picker.Item label="L3" value="L3" />
+                  <Picker.Item label="M1" value="M1" />
+                  <Picker.Item label="M2" value="M2" />
+                </Picker>
+              </View>
+              <View style={styles.radioButtonParcous}>
+                {options.map((option) => (
+                  <RadioButton
+                    key={option.value}
+                    label={option.label}
+                    value={option.value}
+                    selected={radioselectedValue === option.value}
+                    onPress={() => {
+                      setRadioselectedValue(option.value);
+                    }}
+                  />
+                ))}
+              </View>
+            </View>
+          </View>
         </View>
 
-        {showCinDatePicker && (
-          <DateTimePicker
-            value={cin_date}
-            mode="date"
-            display="default"
-            onChange={onChangeCinDate}
-          />
-        )}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Contact</Text>
+          <View style={styles.inputContainer}>
+            <TextInput
+              mode="outlined"
+              label="Email"
+              value={email}
+              onChangeText={setEmail}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoCompleteType="email"
+              textContentType="emailAddress"
+              style={styles.input}
+              activeOutlineColor={colors.primary}
+              outlineColor="#756C66"
+            />
+            <TextInput
+              mode="outlined"
+              label="Numero Téléphone"
+              value={tel}
+              onChangeText={handleNumInput}
+              keyboardType="numeric"
+              style={styles.input}
+              activeOutlineColor={colors.primary}
+              outlineColor="#756C66"
+              maxLength={13}
+            />
+          </View>
+        </View>
 
-        <TextInput
-          mode="outlined"
-          label="Adresse"
-          value={adresse}
-          onChangeText={setAdresse}
-          style={styles.input}
-          activeOutlineColor={colors.primary}
-        />
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Information civique</Text>
+          <View style={styles.inputContainer}>
+            <TextInput
+              mode="outlined"
+              label="Adresse"
+              value={adresse}
+              onChangeText={setAdresse}
+              style={styles.input}
+              activeOutlineColor={colors.primary}
+              outlineColor="#756C66"
+            />
+            <TextInput
+              mode="outlined"
+              label="Numero de CIN"
+              value={cin}
+              onChangeText={handleCinInput}
+              keyboardType="numeric"
+              style={styles.input}
+              activeOutlineColor={colors.primary}
+              outlineColor="#756C66"
+              maxLength={15}
+            />
 
-        <TextInput
-          mode="outlined"
-          label="Année universitaire"
-          value={annee_univ}
-          onChangeText={setAnnee_univ}
-          style={styles.input}
-          activeOutlineColor={colors.primary}
-        />
+            <View style={styles.datePickerContainer}>
+              <TextInput
+                mode="outlined"
+                label="CIN Date"
+                style={styles.dateInput}
+                value={cinDateInput}
+                onChangeText={(text) =>
+                  handleDateInputChange(text, setCinDateInput, setCin_date)
+                }
+                placeholder="JJ/MM/AAAA"
+                keyboardType="numeric"
+                editable={!showCinDatePicker} // Disable input when date picker is shown
+                activeOutlineColor={colors.primary}
+                outlineColor="#756C66"
+              />
+              <TouchableOpacity
+                style={styles.dateBtn}
+                onPress={() => setShowCinDatePicker(true)}
+                activeOpacity={0.9}
+              >
+                <Icon name="calendar-today" size={50} color={colors.primary} />
+              </TouchableOpacity>
+            </View>
+
+            {showCinDatePicker && (
+              <DateTimePicker
+                value={cin_date}
+                mode="date"
+                display="default"
+                onChange={onChangeCinDate}
+              />
+            )}
+          </View>
+        </View>
 
         <View style={styles.buttonContainer}>
           <Button
@@ -500,7 +548,7 @@ const AddingEtudiant = () => {
               mode="contained"
               onPress={handleAddEtudiant}
               style={styles.button}
-              textColor="black"
+              textColor="white"
               icon="account-plus"
             >
               Ajouter
@@ -515,20 +563,46 @@ const AddingEtudiant = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: 15,
+    paddingHorizontal: 25,
     paddingVertical: 10,
-    backgroundColor: "white",
+    backgroundColor: "#ffffff",
+  },
+  section: {
+    marginBottom: 20,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 5,
+    color: "#595959",
+  },
+  inputContainer: {
+    paddingLeft: 5,
+  },
+  anarana: {
+    width: "100%",
+  },
+  namewidth: {
+    width: "100%",
   },
   image: {
     width: 200,
     height: 200,
+    borderRadius: 200,
+    backgroundColor: "white",
+    
   },
   input: {
     width: "100%",
-    marginVertical: 5,
-    backgroundColor: "white",
+    marginVertical: 2,
     borderColor: colors.primary,
     borderWidth: 0,
+    backgroundColor: "transparent",
+  },
+  annee_univ: {
+    marginBottom: 20,
+    marginLeft: 5,
+    width: "98%"
   },
   buttonContainer: {
     flexDirection: "row",
@@ -552,8 +626,28 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   contFainer: {
-    flexDirection: "row",
-    justifyContent: "space-around"
+    alignItems: "center",
+    justifyContent: "space-around",
+    position: "relative",
+  },
+  addPhotot: {
+    position: "absolute",
+    bottom: -5,
+    left: 200,
+    backgroundColor: "white",
+    padding: 11,
+    borderRadius: 50,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.5,
+    shadowRadius: 4,
+    elevation: 10,
+  },
+  clickable: {
+    color: colors.primary,
+    fontWeight: "bold",
+    fontSize: 18,
+    margin: 10,
   },
   cancelButton: {
     marginTop: 20,
@@ -603,9 +697,10 @@ const styles = StyleSheet.create({
     marginBottom: 4,
     marginTop: 5,
     paddingTop: 10,
+    marginLeft: 5,
     borderWidth: 1,
-    borderColor: "gray",
-    borderRadius: 5,
+    borderColor: "black",
+    borderRadius: 10,
     overflow: "hidden",
   },
   niveauContainer: {

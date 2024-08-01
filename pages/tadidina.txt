@@ -12,3 +12,11 @@
   const [annee_univ, setAnnee_univ] = useState("2023-2024");
 
   <Icon name="calendar-today" size={45} color="#007BFF" />
+
+
+  <View style={styles.contFainer}>
+              <TouchableOpacity onPress={openImagePicker} activeOpacity={0.7}>
+                <Icon name="photo" size={50} color={colors.primary} />
+              </TouchableOpacity>
+              {image && <Image source={{ uri: image }} style={styles.image} />}
+            </View>
