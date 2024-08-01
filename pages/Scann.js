@@ -22,7 +22,11 @@ export default function App() {
   const [torchon, setTorchon] = useState(false);
   const [scanned, setScanned] = useState(false);
   const [scaleValue] = useState(new Animated.Value(1));
+<<<<<<< HEAD
   const [lightdisplay, setLightdisplay] = useState("white");
+=======
+  const [light, setLight] = useState("#fff")
+>>>>>>> origin/main
 
   useEffect(() => {
     // Define the zoom animation
@@ -70,10 +74,17 @@ export default function App() {
   function toggleTorch() {
     if (torchon) {
       setTorchon(false);
+<<<<<<< HEAD
       setLightdisplay("white");
     } else {
       setTorchon(true);
       setLightdisplay("#FEFFB8");
+=======
+      setLight("#fff")
+    } else {
+      setTorchon(true);
+      setLight("#FEFFB8")
+>>>>>>> origin/main
     }
   }
 
@@ -126,7 +137,11 @@ export default function App() {
                 viewBox="0 0 21 22"
               >
                 <Path
+<<<<<<< HEAD
                   fill={lightdisplay}
+=======
+                  fill={light}
+>>>>>>> origin/main
                   d="M7.248 9.624.861 15.836c-.405.394-.672.898-.742 1.4-.07.503.064.963.372 1.28l2.317 2.382c.308.316.764.462 1.268.407.504-.056 1.015-.309 1.42-.703l6.388-6.213c1.04.225 3.212.353 5.292-1.67l1.53-1.487-8.112-8.34-1.53 1.487c-2.08 2.023-2.012 4.198-1.816 5.245Zm2.234 1.305 1.159 1.191-2.294 2.232-1.16-1.192 2.295-2.231ZM12.888.66 21 9l-1.53 1.488-8.111-8.34L12.887.66Z"
                 />
               </Svg>
