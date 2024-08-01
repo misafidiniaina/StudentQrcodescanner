@@ -311,10 +311,9 @@ const AddingEtudiant = () => {
         />
 
         <View style={styles.contFainer}>
-          <Button
-            title="Pick an image from camera roll"
-            onPress={openImagePicker}
-          />
+          <TouchableOpacity onPress={openImagePicker} activeOpacity={0.7}>
+            <Icon name="photo" size={50} color={colors.primary} />
+          </TouchableOpacity>
           {image && <Image source={{ uri: image }} style={styles.image} />}
         </View>
 
@@ -551,6 +550,10 @@ const styles = StyleSheet.create({
     width: "50%",
     justifyContent: "center",
     alignItems: "center",
+  },
+  contFainer: {
+    flexDirection: "row",
+    justifyContent: "space-around"
   },
   cancelButton: {
     marginTop: 20,
