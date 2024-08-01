@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Text,
   ScrollView,
+  Image,
 } from "react-native";
 import { addEtudiant } from "../services/ApiServices";
 import DateTimePicker from "@react-native-community/datetimepicker";
@@ -19,6 +20,7 @@ import Icon from "react-native-vector-icons/MaterialIcons";
 import { Picker } from "@react-native-picker/picker";
 import { colors } from "../utils/Utils";
 import { LinearGradient } from "expo-linear-gradient";
+import * as ImagePicker from "expo-image-picker";
 
 // Helper function to format date as DD/MM/YYYY
 const formatDate = (date) => {
@@ -60,6 +62,7 @@ const AddingEtudiant = () => {
   const [listType, setListType] = useState("premierannee");
   const textInputRef = useRef(null);
   const matriculeRef = useRef(null);
+  const [image, setImage] = useState(null);
 
   const normalOptions = [
     { label: "IG", value: "IG" },
@@ -73,6 +76,57 @@ const AddingEtudiant = () => {
   ];
 
   const options = listType === "normal" ? normalOptions : l1Options;
+
+  const openImagePicker = async () => {
+    // Show action sheet to choose between taking a photo or picking from gallery
+    const { action } = await new Promise((resolve) => {
+      Alert.alert(
+        "Ajouter une photo",
+        "Selectionner une action:",
+        [
+          {
+            text: "Annuler",
+            style: "cancel",
+            onPress: () => resolve({ action: "cancel" }),
+          },
+
+          {
+            text: "Choisir depuis la galery",
+            onPress: () => resolve({ action: "pickImage" }),
+          },
+          {
+            text: "Prendre une photo",
+            onPress: () => resolve({ action: "takePhoto" }),
+          },
+        ],
+        { cancelable: true }
+      );
+    });
+
+    if (action === "takePhoto") {
+      const result = await ImagePicker.launchCameraAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [4, 4],
+        quality: 1,
+      });
+
+      if (!result.canceled) {
+        setImage(result.assets[0].uri);
+      }
+    } else if (action === "pickImage") {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [4, 4],
+        quality: 1,
+      });
+
+      if (!result.canceled) {
+        setImage(result.assets[0].uri);
+      }
+    }
+  };
 
   const RadioButton = ({ label, value, selected, onPress }) => {
     return (
@@ -141,7 +195,7 @@ const AddingEtudiant = () => {
     setNiveau("");
     setParcours("");
     setAnnee_univ("2023-2024");
-   // matriculeRef.current.focus();
+    // matriculeRef.current.focus();
   };
   const onChangeDob = (event, selectedDate) => {
     const currentDate = selectedDate || dob;
@@ -238,32 +292,44 @@ const AddingEtudiant = () => {
     <PaperProvider>
       <ScrollView style={styles.container}>
         <TextInput
+          mode="outlined"
           label="Numéro Matricule"
           style={styles.input}
           value={matricule}
           onChangeText={setMatricule}
-          activeUnderlineColor={colors.primary}
+          activeOutlineColor={colors.primary}
           ref={matriculeRef}
         />
 
         <TextInput
+          mode="outlined"
           label="Nom"
           style={styles.input}
           value={nom}
           onChangeText={setNom}
-          activeUnderlineColor={colors.primary}
+          activeOutlineColor={colors.primary}
         />
 
+        <View style={styles.contFainer}>
+          <Button
+            title="Pick an image from camera roll"
+            onPress={openImagePicker}
+          />
+          {image && <Image source={{ uri: image }} style={styles.image} />}
+        </View>
+
         <TextInput
+          mode="outlined"
           label="Prénom"
           style={styles.input}
           value={prenom}
           onChangeText={setPrenom}
-          activeUnderlineColor={colors.primary}
+          activeOutlineColor={colors.primary}
         />
 
         <View style={styles.datePickerContainer}>
           <TextInput
+            mode="outlined"
             label="Date of Birth"
             style={styles.dateInput}
             value={dateInput}
@@ -273,7 +339,7 @@ const AddingEtudiant = () => {
             placeholder="JJ/MM/AAAA"
             keyboardType="numeric"
             editable={!showDatePicker} // Disable input when date picker is shown
-            activeUnderlineColor={colors.primary}
+            activeOutlineColor={colors.primary}
             onSelectionChange={handleSelectionChange}
           />
           <TouchableOpacity
@@ -332,6 +398,7 @@ const AddingEtudiant = () => {
         </View>
 
         <TextInput
+          mode="outlined"
           label="Email"
           value={email}
           onChangeText={setEmail}
@@ -340,31 +407,34 @@ const AddingEtudiant = () => {
           autoCompleteType="email"
           textContentType="emailAddress"
           style={styles.input}
-          activeUnderlineColor={colors.primary}
+          activeOutlineColor={colors.primary}
         />
 
         <TextInput
+          mode="outlined"
           label="Numero Téléphone"
           value={tel}
           onChangeText={handleNumInput}
           keyboardType="numeric"
           style={styles.input}
-          activeUnderlineColor={colors.primary}
+          activeOutlineColor={colors.primary}
           maxLength={13}
         />
 
         <TextInput
+          mode="outlined"
           label="Numero de CIN"
           value={cin}
           onChangeText={handleCinInput}
           keyboardType="numeric"
           style={styles.input}
-          activeUnderlineColor={colors.primary}
+          activeOutlineColor={colors.primary}
           maxLength={15}
         />
 
         <View style={styles.datePickerContainer}>
           <TextInput
+            mode="outlined"
             label="CIN Date"
             style={styles.dateInput}
             value={cinDateInput}
@@ -374,7 +444,7 @@ const AddingEtudiant = () => {
             placeholder="JJ/MM/AAAA"
             keyboardType="numeric"
             editable={!showCinDatePicker} // Disable input when date picker is shown
-            activeUnderlineColor={colors.primary}
+            activeOutlineColor={colors.primary}
           />
           <TouchableOpacity
             style={styles.dateBtn}
@@ -395,19 +465,21 @@ const AddingEtudiant = () => {
         )}
 
         <TextInput
+          mode="outlined"
           label="Adresse"
           value={adresse}
           onChangeText={setAdresse}
           style={styles.input}
-          activeUnderlineColor={colors.primary}
+          activeOutlineColor={colors.primary}
         />
 
         <TextInput
+          mode="outlined"
           label="Année universitaire"
           value={annee_univ}
           onChangeText={setAnnee_univ}
           style={styles.input}
-          activeUnderlineColor={colors.primary}
+          activeOutlineColor={colors.primary}
         />
 
         <View style={styles.buttonContainer}>
@@ -446,6 +518,11 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 15,
     paddingVertical: 10,
+    backgroundColor: "white",
+  },
+  image: {
+    width: 200,
+    height: 200,
   },
   input: {
     width: "100%",
@@ -523,7 +600,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
     marginTop: 5,
     paddingTop: 10,
-    borderBottomWidth: 1,
+    borderWidth: 1,
     borderColor: "gray",
     borderRadius: 5,
     overflow: "hidden",
