@@ -9,7 +9,7 @@ import {
   ScrollView,
   Image,
 } from "react-native";
-import { addEtudiant } from "../services/ApiServices";
+import { addEtudiant, convertImageToBase64 } from "../services/ApiServices";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import {
   TextInput,
@@ -20,7 +20,7 @@ import {
 
 import Icon from "react-native-vector-icons/MaterialIcons";
 import { Picker } from "@react-native-picker/picker";
-import { colors } from "../utils/Utils";
+import { colors, removeSpaces, transformDateToISO } from "../utils/Utils";
 import { LinearGradient } from "expo-linear-gradient";
 import * as ImagePicker from "expo-image-picker";
 import profilePlaceholder from "../images/profile_placeholder.jpg";
@@ -74,7 +74,7 @@ const AddingEtudiant = () => {
   const [listType, setListType] = useState("premierannee");
   const textInputRef = useRef(null);
   const matriculeRef = useRef(null);
-  const [image, setImage] = useState(null);
+  const [imageUri, setImageUri] = useState(null);
 
   const normalOptions = [
     { label: "IG", value: "IG" },
@@ -124,7 +124,7 @@ const AddingEtudiant = () => {
       });
 
       if (!result.canceled) {
-        setImage(result.assets[0].uri);
+        setImageUri(result.assets[0].uri);
       }
     } else if (action === "pickImage") {
       const result = await ImagePicker.launchImageLibraryAsync({
@@ -135,7 +135,7 @@ const AddingEtudiant = () => {
       });
 
       if (!result.canceled) {
-        setImage(result.assets[0].uri);
+        setImageUri(result.assets[0].uri);
       }
     }
   };
@@ -158,33 +158,39 @@ const AddingEtudiant = () => {
   };
 
   const handleAddEtudiant = async () => {
-    /*try {
+    const imagebase64 = await convertImageToBase64(imageUri);
+    const formattedTel = removeSpaces(tel)
+    const formattedCin = removeSpaces(cin)
+    const formattedDob = transformDateToISO(dob)
+    const formattedDateCin = transformDateToISO(cin_date)
+    try {
       const result = await addEtudiant(
         nom,
         prenom,
-        dob,
-        cin,
-        cin_date,
-        tel,
+        formattedDob,
+        formattedCin,
+        formattedDateCin,
+        formattedTel,
         email,
         adresse,
         niveau,
         parcours,
         matricule,
-        annee_univ
+        annee_univ,
       );
       Alert.alert(result);
     } catch (error) {
       Alert.alert(error);
-    }*/
+    }
+
     const message = [
       `Matricule: ${matricule}`,
       `Nom: ${nom}`,
       `Prénom: ${prenom}`,
-      `Date of Birth: ${formatDate(dob)}`, // Make sure to format the date properly
-      `CIN: ${cin}`,
-      `CIN Date: ${formatDate(cin_date)}`,
-      `Téléphone: ${tel}`,
+      `Date of Birth: ${formattedDob}`, // Make sure to format the date properly
+      `CIN: ${formattedCin}`,
+      `CIN Date: ${formattedDateCin}`,
+      `Téléphone: ${formattedTel}`,
       `Email: ${email}`,
       `Adresse: ${adresse}`,
       `Niveau: ${niveau}`,
@@ -192,6 +198,8 @@ const AddingEtudiant = () => {
       `Année Universitaire: ${annee_univ}`,
     ].join("\n");
     Alert.alert("Student Information", message);
+    console.log("eto no manomboka");
+    console.log(imagebase64);
   };
 
   const handleCancelButton = () => {
@@ -304,8 +312,8 @@ const AddingEtudiant = () => {
     <PaperProvider theme={theme}>
       <ScrollView style={styles.container}>
         <View style={[styles.contFainer, { marginTop: 15 }]}>
-          {image ? (
-            <Image source={{ uri: image }} style={styles.image} />
+          {imageUri ? (
+            <Image source={{ uri: imageUri }} style={styles.image} />
           ) : (
             <Image source={profilePlaceholder} style={styles.image} />
           )}
@@ -590,7 +598,6 @@ const styles = StyleSheet.create({
     height: 200,
     borderRadius: 200,
     backgroundColor: "white",
-    
   },
   input: {
     width: "100%",
@@ -601,7 +608,7 @@ const styles = StyleSheet.create({
   },
   annee_univ: {
     marginBottom: 20,
-    width: "100%"
+    width: "100%",
   },
   buttonContainer: {
     flexDirection: "row",

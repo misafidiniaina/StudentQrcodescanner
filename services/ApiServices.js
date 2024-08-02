@@ -1,5 +1,6 @@
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as FileSystem from "expo-file-system";
 
 const EXPO_PUBLIC_API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
 const EXPO_PUBLIC_API_PORT = process.env.EXPO_PUBLIC_API_PORT;
@@ -71,6 +72,18 @@ export const getEtudiants = async () => {
   }
 };
 
+export const convertImageToBase64 = async (uri) => {
+  try {
+    const base64 = await FileSystem.readAsStringAsync(uri, {
+      encoding: FileSystem.EncodingType.Base64,
+    });
+    return base64;
+  } catch (error) {
+    console.error("Error converting image to Base64: ", error);
+    throw error;
+  }
+};
+
 export const addEtudiant = async (
   nom,
   prenom,
@@ -83,7 +96,7 @@ export const addEtudiant = async (
   niveau,
   parcours,
   matricule,
-  annee_univ
+  annee_univ,
 ) => {
   try {
     const accessToken = await getAccessToken();
@@ -131,7 +144,7 @@ export const deleteEtudiant = async (idEtudiant) => {
       }
     );
     return response.data;
-  } catch (error){
+  } catch (error) {
     throw error;
   }
 };

@@ -4,3 +4,11 @@ export const colors = {
   background: "#FFFFFF",
   text: "#000000",
 };
+
+export const removeSpaces = (str) => {
+  return str.replace(/\s+/g, "");
+};
+
+export const transformDateToISO = (dateStr) => {
+  return dateStr.toISOString();
+};

@@ -44,16 +44,15 @@ const AdminDashboard = () => {
   };
 
   const handleStudentClick = (id) => {
-    Alert.alert("voclique etudiant avec ID: "+ id);
+    Alert.alert("voclique etudiant avec ID: " + id);
   };
 
   const handleDelete = async (id) => {
     Alert.alert(id.toString());
-    try{
+    try {
       const result = await deleteEtudiant(id);
-    }
-    catch(error){
-      console.error("error:", error)
+    } catch (error) {
+      console.error("error:", error);
     }
     setStudents(students.filter((student) => student.id !== id));
   };
