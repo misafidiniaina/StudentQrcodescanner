@@ -44,13 +44,20 @@ const AdminDashboard = () => {
   };
 
   const handleStudentClick = (id) => {
-    Alert.alert("voclique etudiant avec ID: " + id);
+    const student = students.find((etudiant) => etudiant.id === id);
+    if (student) {
+      Alert.alert("Student Information", JSON.stringify(student));
+      navigation.navigate("Information ", { student });
+    } else {
+      Alert.alert("Error", "Student not found");
+    }
   };
 
   const handleDelete = async (id) => {
     Alert.alert(id.toString());
     try {
       const result = await deleteEtudiant(id);
+      //message management
     } catch (error) {
       console.error("error:", error);
     }
@@ -146,7 +153,7 @@ const AdminDashboard = () => {
   return (
     <SafeAreaView style={styles.container}>
       <LinearGradient
-        colors={["#A8EAFF", "#1E92FF"]}
+        colors={["#032949","#005D80" ]}
         style={styles.searchContainer}
       >
         <View style={styles.titleContainer}>
@@ -174,6 +181,7 @@ const AdminDashboard = () => {
           renderItem={renderItem}
           keyExtractor={(item) => item.id.toString()}
           contentContainerStyle={styles.list}
+          style={styles.flatList}
         />
       ) : (
         <View style={styles.noResultsContainer}>
@@ -195,7 +203,7 @@ export default AdminDashboard;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "white",
+    backgroundColor: "#F2F2F2",
   },
   searchContainer: {
     paddingHorizontal: 15,
@@ -212,15 +220,17 @@ const styles = StyleSheet.create({
   searchBar: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#E2E7EE",
+    backgroundColor: "#fff",
     borderRadius: 50,
     marginHorizontal: 2,
-    marginVertical: 8,
+    marginVertical: 15,
     paddingHorizontal: 15,
     paddingVertical: 8,
   },
   searchIcon: {
-    marginRight: 10,
+    marginRight: 20,
+    marginLeft: 10,
+    color: "gray"
   },
   searchInput: {
     flex: 1,
@@ -232,16 +242,19 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     fontSize: 28,
     paddingTop: 5,
-    color: "#2E3547",
+    color: "#fff",
   },
   studentNumber: {
     fontWeight: "bold",
-    paddingVertical: 5,
-    color: "#2E3547",
+    paddingVertical: 15,
+    color: "#fff",
   },
   list: {
     paddingHorizontal: 0,
-    paddingVertical: 10,
+    paddingVertical: 0,
+  },
+  flatList: {
+    flexGrow: 1,
   },
   studentContainer: {
     marginBottom: 10,
@@ -251,14 +264,16 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
   },
   studentInfoContainer: {
-    padding: 12,
+    padding: 10,
     justifyContent: "space-between",
     flexDirection: "row",
     borderRadius: 10,
   },
   left: {
     width: "20%",
-    justifyContent: "space-around",
+    justifyContent: "center",
+    alignItems: "center",
+    paddingLeft: 10,
   },
   right: {
     width: "80%",
@@ -273,73 +288,35 @@ const styles = StyleSheet.create({
   matricule: {
     fontWeight: "bold",
     fontSize: 13,
-    marginLeft: 10,
     color: "#5d5d5d",
-    width: "100%",
   },
   class: {
     flexDirection: "row",
-    backgroundColor: "white",
+    backgroundColor: "whitesmoke",
     justifyContent: "center",
-    paddingHorizontal: 5,
-    paddingVertical: 2,
+    paddingVertical: 3,
     borderRadius: 20,
+    marginVertical: 3,
   },
   studentInfo: {
-    fontSize: 11,
-    marginRight: 5,
+    marginHorizontal: 6,
+    fontSize: 12,
+    color: "gray",
   },
-  shadow: {
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
-  shadowlist: {
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.15,
-    shadowRadius: 3.84,
-    elevation: 1,
-  },
-  actionsContainer: {
-    flexDirection: "row",
-    width: 140, // Adjust based on the number of buttons
-    alignItems: "flex-start",
-    paddingTop: 1,
-    justifyContent: "flex-start",
-    marginHorizontal: -10,
-  },
-  deleteButton: {
-    backgroundColor: "red",
+  addEtudiant: {
+    position: "absolute",
+    bottom: 25,
+    right: 20,
+    width: 60,
+    height: 60,
+    borderRadius: 35,
     justifyContent: "center",
     alignItems: "center",
-    width: 55,
-    aspectRatio: 1,
-    marginHorizontal: 5,
-    borderRadius: 10,
+    backgroundColor: colors.primary,
   },
-  deleteButtonText: {
+  addText: {
     color: "white",
-    fontWeight: "bold",
-  },
-  editButton: {
-    backgroundColor: "orange",
-    justifyContent: "center",
-    alignItems: "center",
-    width: 55,
-    aspectRatio: 1,
-    borderRadius: 10,
-  },
-  editButtonText: {
-    color: "white",
+    fontSize: 35,
     fontWeight: "bold",
   },
   noResultsContainer: {
@@ -351,22 +328,45 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: "gray",
   },
-  addEtudiant: {
-    position: "absolute",
-    right: 20,
-    bottom: 20,
-    backgroundColor: colors.primary,
-    borderRadius: 100,
-    textAlign: "center",
-    width: 60,
-    height: 60,
-    alignItems: "center",
+  actionsContainer: {
+    flexDirection: "row",
     justifyContent: "center",
+    alignItems: "center",
   },
-  addText: {
-    fontSize: 50,
-    textAlign: "center",
+  editButton: {
+    backgroundColor: "orange",
     justifyContent: "center",
     alignItems: "center",
+    width: 70,
+    height: "85%",
+    borderRadius: 10,
+    marginRight: 10,
+    paddingHorizontal: 10,
+  },
+  editButtonText: {
+    color: "white",
+  },
+  deleteButton: {
+    backgroundColor: "red",
+    justifyContent: "center",
+    alignItems: "center",
+    width: 70,
+    height: "85%",
+    borderRadius: 10,
+    marginRight: 10,
+    paddingHorizontal: 10,
+  },
+  deleteButtonText: {
+    color: "white",
+  },
+  shadow: {
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.23,
+    shadowRadius: 2.62,
+    elevation: 4,
   },
 });

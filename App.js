@@ -13,6 +13,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import Login from "./pages/Login";
 import AdminDashboard from "./pages/AdminDashboard";
 import AddingEtudiant from "./pages/AddingEtudiant";
+import EtudiantsInfo from "./pages/EtudiantsInfo";
 
 const Stack = createStackNavigator();
 
@@ -43,12 +44,24 @@ export default function App() {
             name="Dashboard"
             component={AdminDashboard}
             options={{
-             headerShown: false
+              headerShown: false,
             }}
           />
           <Stack.Screen
             name="Ajout Étudiant"
             component={AddingEtudiant}
+            options={{
+              headerTitleAlign: "center",
+              headerTitleStyle: styles.ajoutTitle,
+              headerStyle: styles.ajoutHeader,
+              headerShadowVisible: false,
+              headerBackTitleStyle: styles.backStyle,
+              headerTintColor: "white",
+            }}
+          />
+          <Stack.Screen
+            name="Information "
+            component={EtudiantsInfo}
             options={{
               headerTitleAlign: "center",
               headerTitleStyle: styles.headerTitle,
@@ -62,18 +75,32 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
+  screen: {
+    backgroundColor: "white",
+  },
   container: {
     flex: 1,
     backgroundColor: "#black",
     alignItems: "center",
     justifyContent: "center",
   },
+  backStyle: {
+    color: "white",
+  },
   headerTitle: {
     fontWeight: "bold",
     fontSize: 25,
   },
+  ajoutTitle: {
+    fontWeight: "bold",
+    fontSize: 25,
+    color: "white",
+  },
+  ajoutHeader: {
+    backgroundColor: "transparent",
+  },
   DashboardTitle: {
     display: "none",
-    backgroundColor: "blue"
+    backgroundColor: "blue",
   },
 });

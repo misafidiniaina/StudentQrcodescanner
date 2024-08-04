@@ -158,11 +158,10 @@ const AddingEtudiant = () => {
   };
 
   const handleAddEtudiant = async () => {
-    const imagebase64 = await convertImageToBase64(imageUri);
-    const formattedTel = removeSpaces(tel)
-    const formattedCin = removeSpaces(cin)
-    const formattedDob = transformDateToISO(dob)
-    const formattedDateCin = transformDateToISO(cin_date)
+    const formattedTel = removeSpaces(tel);
+    const formattedCin = removeSpaces(cin);
+    const formattedDob = transformDateToISO(dob);
+    const formattedDateCin = transformDateToISO(cin_date);
     try {
       const result = await addEtudiant(
         nom,
@@ -176,7 +175,7 @@ const AddingEtudiant = () => {
         niveau,
         parcours,
         matricule,
-        annee_univ,
+        annee_univ
       );
       Alert.alert(result);
     } catch (error) {
@@ -199,7 +198,6 @@ const AddingEtudiant = () => {
     ].join("\n");
     Alert.alert("Student Information", message);
     console.log("eto no manomboka");
-    console.log(imagebase64);
   };
 
   const handleCancelButton = () => {
@@ -216,6 +214,7 @@ const AddingEtudiant = () => {
     setParcours("");
     setAnnee_univ("2023-2024");
     // matriculeRef.current.focus();
+    setImageUri(null);
   };
   const onChangeDob = (event, selectedDate) => {
     const currentDate = selectedDate || dob;
@@ -309,9 +308,13 @@ const AddingEtudiant = () => {
     setCin(formattedText);
   };
   return (
-    <PaperProvider theme={theme}>
+    <PaperProvider theme={theme}  style={styles.screen}>
+      <LinearGradient
+        colors={["#02182B","#02182B","#02182B", "#006F99"]}
+        style={styles.circleBackground}
+      ></LinearGradient>
       <ScrollView style={styles.container}>
-        <View style={[styles.contFainer, { marginTop: 15 }]}>
+        <View style={[styles.contFainer, { marginTop: 40 }]}>
           {imageUri ? (
             <Image source={{ uri: imageUri }} style={styles.image} />
           ) : (
@@ -322,9 +325,10 @@ const AddingEtudiant = () => {
             activeOpacity={0.7}
             style={styles.addPhotot}
           >
-            <Icon name="add-a-photo" size={27} color={colors.primary} />
+            <Icon name="add-a-photo" size={20} color={colors.primary} />
           </TouchableOpacity>
         </View>
+
         <View style={[styles.section, { marginTop: 40 }]}>
           <Text style={styles.sectionTitle}>Information personnelle</Text>
           <View style={styles.inputContainer}>
@@ -335,7 +339,7 @@ const AddingEtudiant = () => {
               value={matricule}
               onChangeText={setMatricule}
               activeOutlineColor={colors.primary}
-              outlineColor="#756C66"
+              outlineColor="#000"
               ref={matriculeRef}
             />
 
@@ -347,7 +351,7 @@ const AddingEtudiant = () => {
                 value={nom}
                 onChangeText={setNom}
                 activeOutlineColor={colors.primary}
-                outlineColor="#756C66"
+                outlineColor="#000"
               />
 
               <TextInput
@@ -357,7 +361,7 @@ const AddingEtudiant = () => {
                 value={prenom}
                 onChangeText={setPrenom}
                 activeOutlineColor={colors.primary}
-                outlineColor="#756C66"
+                outlineColor="#000"
               />
             </View>
 
@@ -374,7 +378,7 @@ const AddingEtudiant = () => {
                 keyboardType="numeric"
                 editable={!showDatePicker} // Disable input when date picker is shown
                 activeOutlineColor={colors.primary}
-                outlineColor="#756C66"
+                outlineColor="#000"
                 onSelectionChange={handleSelectionChange}
               />
               <TouchableOpacity
@@ -407,7 +411,7 @@ const AddingEtudiant = () => {
               onChangeText={setAnnee_univ}
               style={[styles.input, styles.annee_univ]}
               activeOutlineColor={colors.primary}
-              outlineColor="#756C66"
+              outlineColor="#000"
             />
             <Text style={styles.classLabel}>Classe</Text>
             <View style={styles.class}>
@@ -462,7 +466,7 @@ const AddingEtudiant = () => {
               textContentType="emailAddress"
               style={styles.input}
               activeOutlineColor={colors.primary}
-              outlineColor="#756C66"
+              outlineColor="#000"
             />
             <TextInput
               mode="outlined"
@@ -472,7 +476,7 @@ const AddingEtudiant = () => {
               keyboardType="numeric"
               style={styles.input}
               activeOutlineColor={colors.primary}
-              outlineColor="#756C66"
+              outlineColor="#000"
               maxLength={13}
             />
           </View>
@@ -488,7 +492,7 @@ const AddingEtudiant = () => {
               onChangeText={setAdresse}
               style={styles.input}
               activeOutlineColor={colors.primary}
-              outlineColor="#756C66"
+              outlineColor="#000"
             />
             <TextInput
               mode="outlined"
@@ -498,7 +502,7 @@ const AddingEtudiant = () => {
               keyboardType="numeric"
               style={styles.input}
               activeOutlineColor={colors.primary}
-              outlineColor="#756C66"
+              outlineColor="#000"
               maxLength={15}
             />
 
@@ -515,7 +519,7 @@ const AddingEtudiant = () => {
                 keyboardType="numeric"
                 editable={!showCinDatePicker} // Disable input when date picker is shown
                 activeOutlineColor={colors.primary}
-                outlineColor="#756C66"
+                outlineColor="#000"
               />
               <TouchableOpacity
                 style={styles.dateBtn}
@@ -547,7 +551,7 @@ const AddingEtudiant = () => {
             Annuler
           </Button>
           <LinearGradient
-            colors={["#FF9538", "#FF5F6D"]} // Gradient colors
+            colors={[colors.primary, colors.primary]} // Gradient colors
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={styles.addbutton}
@@ -571,18 +575,33 @@ const AddingEtudiant = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: 25,
-    paddingVertical: 10,
-    backgroundColor: "#ffffff",
+    paddingHorizontal: 0,
+    zIndex: 0,
+    
+  },
+  screen: {
+    backgroundColor: "white"
+  },
+  circleBackground: {
+    padding: 10,
+    width: "200%",
+    left: "-50%",
+    alignContent: "center",
+    aspectRatio: 1,
+    borderRadius: 2000000000,
+    marginTop: "-160%",
+    position: "absolute",
   },
   section: {
-    marginBottom: 20,
+    padding: 20,
+    backgroundColor: "whitesmoke",
+    paddingHorizontal: 25
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: "bold",
     marginBottom: 5,
-    color: "#595959",
+    color: "#000",
   },
   inputContainer: {
     paddingLeft: 0,
@@ -594,8 +613,8 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   image: {
-    width: 200,
-    height: 200,
+    width: 170,
+    height: 170,
     borderRadius: 200,
     backgroundColor: "white",
   },
@@ -604,7 +623,7 @@ const styles = StyleSheet.create({
     marginVertical: 2,
     borderColor: colors.primary,
     borderWidth: 0,
-    backgroundColor: "transparent",
+    backgroundColor: "whitesmoke"
   },
   annee_univ: {
     marginBottom: 20,
@@ -614,7 +633,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 10,
+    paddingBottom: 10,
+    backgroundColor: "whitesmoke",
+    paddingHorizontal: 25,
   },
   button: {
     marginTop: 0,
@@ -635,13 +656,14 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-around",
     position: "relative",
+    zIndex: 32,
   },
   addPhotot: {
     position: "absolute",
-    bottom: -5,
-    left: 200,
+    bottom: 3,
+    left: 220,
     backgroundColor: "white",
-    padding: 11,
+    padding: 10,
     borderRadius: 50,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
@@ -671,7 +693,7 @@ const styles = StyleSheet.create({
   dateInput: {
     flex: 1,
     marginRight: 10,
-    backgroundColor: "white",
+    backgroundColor: "whitesmoke"
   },
   dateBtn: {
     backgroundColor: "transparent",
@@ -699,7 +721,7 @@ const styles = StyleSheet.create({
   class: {
     flexDirection: "row",
     alignItems: "space-between",
-    backgroundColor: "white",
+    backgroundColor: "whitesmoke",
     marginBottom: 4,
     marginTop: 5,
     paddingTop: 10,
