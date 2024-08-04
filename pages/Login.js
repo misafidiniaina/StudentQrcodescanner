@@ -125,6 +125,7 @@ const styles = StyleSheet.create({
   textButton: {
     fontWeight: "bold",
     fontSize: 15,
+    color: "white"
   },
   errorMessage: {
     color: "red",

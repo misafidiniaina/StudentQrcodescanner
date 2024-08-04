@@ -182,7 +182,7 @@ const styles = StyleSheet.create({
   text: {
     fontSize: 13,
     fontWeight: "bold",
-    color: "black",
+    color: "white",
   },
   torch: {
     flex: 1,
@@ -244,7 +244,7 @@ const styles = StyleSheet.create({
     bottom: 20,
     padding: 10,
     paddingHorizontal: 20,
-    backgroundColor: "#FF9538",
+    backgroundColor: colors.primary,
     borderRadius: 20,
   },
   message: {
