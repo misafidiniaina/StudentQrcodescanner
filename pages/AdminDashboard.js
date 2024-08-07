@@ -46,7 +46,7 @@ const AdminDashboard = () => {
   const handleStudentClick = (id) => {
     const student = students.find((etudiant) => etudiant.id === id);
     if (student) {
-      Alert.alert("Student Information", JSON.stringify(student));
+      //console.log(JSON.stringify(student))
       navigation.navigate("Information ", { student });
     } else {
       Alert.alert("Error", "Student not found");
@@ -153,7 +153,7 @@ const AdminDashboard = () => {
   return (
     <SafeAreaView style={styles.container}>
       <LinearGradient
-        colors={["#032949","#005D80" ]}
+        colors={["#67B99A","#469D89" ]}
         style={styles.searchContainer}
       >
         <View style={styles.titleContainer}>

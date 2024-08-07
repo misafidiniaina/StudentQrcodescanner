@@ -308,17 +308,23 @@ const AddingEtudiant = () => {
     setCin(formattedText);
   };
   return (
-    <PaperProvider theme={theme}  style={styles.screen}>
+    <PaperProvider theme={theme} style={styles.screen}>
       <LinearGradient
-        colors={["#02182B","#02182B","#02182B", "#006F99"]}
+        colors={["#67B99A","#67B99A","#67B99A","#469D89" ]}
         style={styles.circleBackground}
       ></LinearGradient>
       <ScrollView style={styles.container}>
         <View style={[styles.contFainer, { marginTop: 40 }]}>
           {imageUri ? (
-            <Image source={{ uri: imageUri }} style={styles.image} />
+            <Image
+              source={{ uri: imageUri }}
+              style={[styles.image, styles.shadow]}
+            />
           ) : (
-            <Image source={profilePlaceholder} style={styles.image} />
+            <Image
+              source={profilePlaceholder}
+              style={[styles.image, styles.shadow]}
+            />
           )}
           <TouchableOpacity
             onPress={openImagePicker}
@@ -577,10 +583,9 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 0,
     zIndex: 0,
-    
   },
   screen: {
-    backgroundColor: "white"
+    backgroundColor: "white",
   },
   circleBackground: {
     padding: 10,
@@ -595,7 +600,7 @@ const styles = StyleSheet.create({
   section: {
     padding: 20,
     backgroundColor: "whitesmoke",
-    paddingHorizontal: 25
+    paddingHorizontal: 25,
   },
   sectionTitle: {
     fontSize: 18,
@@ -617,13 +622,15 @@ const styles = StyleSheet.create({
     height: 170,
     borderRadius: 200,
     backgroundColor: "white",
+    borderColor: "white",
+    borderWidth: 4,
   },
   input: {
     width: "100%",
     marginVertical: 2,
     borderColor: colors.primary,
     borderWidth: 0,
-    backgroundColor: "whitesmoke"
+    backgroundColor: "whitesmoke",
   },
   annee_univ: {
     marginBottom: 20,
@@ -693,7 +700,7 @@ const styles = StyleSheet.create({
   dateInput: {
     flex: 1,
     marginRight: 10,
-    backgroundColor: "whitesmoke"
+    backgroundColor: "whitesmoke",
   },
   dateBtn: {
     backgroundColor: "transparent",
@@ -749,6 +756,16 @@ const styles = StyleSheet.create({
   radioButtonText: {
     marginLeft: 3,
     fontSize: 18,
+  },
+  shadow: {
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 10,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 10,
+    elevation: 10,
   },
 });
 

@@ -63,8 +63,13 @@ export default function App() {
             name="Information "
             component={EtudiantsInfo}
             options={{
+              title: "Profile",
               headerTitleAlign: "center",
-              headerTitleStyle: styles.headerTitle,
+              headerTitleStyle: styles.ajoutTitle,
+              headerStyle: styles.ajoutHeader,
+              headerShadowVisible: false,
+              headerBackTitleStyle: styles.backStyle,
+              headerTintColor: "white",
             }}
           />
         </Stack.Navigator>
