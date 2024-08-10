@@ -120,8 +120,8 @@ export default function App() {
             <TouchableOpacity style={styles.torch} onPress={toggleTorch}>
               <Svg
                 xmlns="http://www.w3.org/2000/svg"
-                width="35"
-                height="35"
+                width="30"
+                height="30"
                 fill="none"
                 viewBox="0 0 21 22"
               >

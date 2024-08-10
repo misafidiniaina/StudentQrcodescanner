@@ -8,7 +8,7 @@ const EXPO_PUBLIC_API_PORT = process.env.EXPO_PUBLIC_API_PORT;
 export const fetchData = async (qrcodedata) => {
   try {
     const response = await axios.get(
-      `${EXPO_PUBLIC_API_BASE_URL}:${EXPO_PUBLIC_API_PORT}/etudiants/qrcode/${qrcodedata}`
+      `${EXPO_PUBLIC_API_BASE_URL}:${EXPO_PUBLIC_API_PORT}/etudiants/qcode/${qrcodedata}`
     );
     return response.data;
   } catch (error) {
@@ -19,15 +19,14 @@ export const fetchData = async (qrcodedata) => {
 export const login = async (username, password) => {
   try {
     const response = await axios.post(
-      `${EXPO_PUBLIC_API_BASE_URL}:${EXPO_PUBLIC_API_PORT}/token`,
+      `${EXPO_PUBLIC_API_BASE_URL}:${EXPO_PUBLIC_API_PORT}/auth/signin`,
       {
-        grant_type: "password",
         username: username,
         password: password,
       },
       {
         headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
+          "Content-Type": "application/json",
           accept: "application/json",
         },
       }
@@ -58,7 +57,7 @@ export const getEtudiants = async () => {
     }
 
     const response = await axios.get(
-      `${EXPO_PUBLIC_API_BASE_URL}:${EXPO_PUBLIC_API_PORT}/etudiants?skip=0&limit=100`,
+      `${EXPO_PUBLIC_API_BASE_URL}:${EXPO_PUBLIC_API_PORT}/etudiants`,
       {
         headers: {
           Accept: "application/json",
@@ -96,13 +95,30 @@ export const addEtudiant = async (
   niveau,
   parcours,
   matricule,
-  annee_univ,
+  anneeUniv,
+  sexe, // Assuming you also want to include this field
+  imageUri // The URI of the image to upload
 ) => {
   try {
     const accessToken = await getAccessToken();
-    const response = await axios.post(
-      `${EXPO_PUBLIC_API_BASE_URL}:${EXPO_PUBLIC_API_PORT}/etudiants/`,
-      {
+
+    // Determine the file extension and MIME type
+    const fileType = imageUri.split('.').pop().toLowerCase();
+    let mimeType = 'image/jpeg'; // Default to jpeg
+
+    if (fileType === 'png') {
+      mimeType = 'image/png';
+    } else if (fileType === 'jpg' || fileType === 'jpeg') {
+      mimeType = 'image/jpeg';
+    }
+
+    // Create a FormData object
+    const formData = new FormData();
+
+    // Append the student data as a JSON string
+    formData.append(
+      "etudiant",
+      JSON.stringify({
         nom,
         prenom,
         dob,
@@ -114,16 +130,31 @@ export const addEtudiant = async (
         niveau,
         parcours,
         matricule,
-        annee_univ,
-      },
+        anneeUniv,
+        sexe,
+      })
+    );
+
+    // Append the image file
+    formData.append("image", {
+      uri: imageUri,
+      type: "image/jpeg", // Adjust type based on the image (jpeg or png)
+      name: imageUri.split("/").pop(), // Extract the file name from the URI
+    });
+
+    // Send the POST request
+    const response = await axios.post(
+      `${EXPO_PUBLIC_API_BASE_URL}:${EXPO_PUBLIC_API_PORT}/etudiants`,
+      formData,
       {
         headers: {
-          accept: "application/json",
           Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
+          "Content-Type": "multipart/form-data",
+          Accept: "application/json",
         },
       }
     );
+
     return response.data;
   } catch (error) {
     throw error;

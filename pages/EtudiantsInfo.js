@@ -7,6 +7,7 @@ import {
   ScrollView,
   TouchableOpacity,
   Alert,
+  Platform,
 } from "react-native";
 import profilePlaceholder from "../images/profile_placeholder.jpg";
 import { SafeAreaProvider } from "react-native-safe-area-context";
@@ -15,12 +16,19 @@ import Icon from "react-native-vector-icons/AntDesign";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
 import Entypo from "react-native-vector-icons/Entypo";
 import Svg, { Path } from "react-native-svg";
-import { colors, formatCin, formatPhoneNumber, printableDate } from "../utils/Utils";
+import {
+  colors,
+  formatCin,
+  formatPhoneNumber,
+  printableDate,
+} from "../utils/Utils";
 import QRCode from "react-native-qrcode-svg";
 import * as FileSystem from "expo-file-system";
 import * as MediaLibrary from "expo-media-library";
 import * as ImageManipulator from "expo-image-manipulator";
 import * as Sharing from "expo-sharing";
+import PDFLib, { PDFDocument, PDFPage } from "react-native-pdf-lib";
+import * as Print from "expo-print";
 
 const EtudiantsInfo = ({ route }) => {
   const { student } = route.params;
@@ -93,6 +101,57 @@ const EtudiantsInfo = ({ route }) => {
     } catch (error) {
       console.error(error);
       Alert.alert("Error", "An error occurred while sharing the QR code.");
+    }
+  };
+
+  const createPDF = async () => {
+    try {
+      // Define the PDF file name
+      const fileName = `${student.matricule}_${student.niveau}_${student.parcours}_${student.nom}_${student.prenom}.pdf`;
+      const pdfUri = `${FileSystem.documentDirectory}${fileName}`;
+  
+      // HTML content for the PDF
+      const htmlContent = `
+        <html>
+          <body>
+            <h1>Information Etudiant</h1>
+            <p>Matricule: ${student.matricule}</p>
+            <p>Nom: ${student.nom}</p>
+            <p>Prenom: ${student.prenom}</p>
+            <p>Niveau: ${student.niveau}</p>
+            <p>Parcours: ${student.parcours}</p>
+            <p>Date de naissance: ${printableDate(student.dob)}</p>
+            <p>Adresse: ${student.adresse}</p>
+            <p>CIN: ${formatCin(student.cin)}</p>
+            <p>Fait le: ${printableDate(student.cin_date)}</p>
+          </body>
+        </html>
+      `;
+  
+      // Generate the PDF
+      const { uri } = await Print.printToFileAsync({
+        html: htmlContent,
+        // Specify the file path where the PDF will be saved
+        filePath: pdfUri,
+      });
+  
+      // Save the PDF to media library
+      const { status } = await MediaLibrary.requestPermissionsAsync();
+      if (status !== "granted") {
+        Alert.alert(
+          "Permission required",
+          "We need permission to access your media library."
+        );
+        return;
+      }
+  
+      const asset = await MediaLibrary.createAssetAsync(uri);
+      await MediaLibrary.createAlbumAsync("PDFs", asset, false);
+  
+      Alert.alert("PDF saved!", `Saved to gallery: ${uri}`);
+    } catch (error) {
+      console.error("Error creating PDF:", error);
+      Alert.alert("Error", "An error occurred while creating the PDF.");
     }
   };
 
@@ -195,11 +254,16 @@ const EtudiantsInfo = ({ route }) => {
               <Text style={styles.info}>{formatPhoneNumber(student.tel)}</Text>
             </View>
             <View style={styles.sectionLine}>
-            <Entypo name="mail" size={17} />
+              <Entypo name="mail" size={17} />
               <Text style={styles.info}>{student.email}</Text>
             </View>
           </View>
-          
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity style={styles.button} onPress={createPDF}>
+              <FontAwesome name="download" size={20} color={"white"} />
+              <Text style={styles.buttonText}>Télécharger (Pdf)</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </ScrollView>
     </SafeAreaProvider>
@@ -280,9 +344,11 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   qrcodeSection: {
-    marginHorizontal: 35,
     justifyContent: "center",
     alignItems: "center",
+    backgroundColor: "whitesmoke",
+    paddingTop: 10,
+    borderRadius: 20,
   },
   qrCodeActionContainer: {
     flexDirection: "row",
@@ -296,6 +362,23 @@ const styles = StyleSheet.create({
     padding: 7,
     borderRadius: 50,
     aspectRatio: 1,
+  },
+  buttonContainer: {
+    marginVertical: 20,
+  },
+  button: {
+    backgroundColor: colors.primary,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 15,
+    borderRadius: 100,
+  },
+  buttonText: {
+    color: "white",
+    fontWeight: "bold",
+    fontSize: 17,
+    marginLeft: 20,
   },
 });
 

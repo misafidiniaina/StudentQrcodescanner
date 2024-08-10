@@ -63,7 +63,8 @@ const AddingEtudiant = () => {
   const [cin, setCin] = useState("");
   const [cin_date, setCin_date] = useState(new Date());
   const [adresse, setAdresse] = useState("");
-  const [annee_univ, setAnnee_univ] = useState("2023-2024");
+  const [anneeUniv, setAnneeUniv] = useState("2023-2024");
+  const [sexe, setSexe] = useState("MALE")
 
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showCinDatePicker, setShowCinDatePicker] = useState(false);
@@ -175,7 +176,9 @@ const AddingEtudiant = () => {
         niveau,
         parcours,
         matricule,
-        annee_univ
+        anneeUniv,
+        sexe,
+        imageUri
       );
       Alert.alert(result);
     } catch (error) {
@@ -194,7 +197,8 @@ const AddingEtudiant = () => {
       `Adresse: ${adresse}`,
       `Niveau: ${niveau}`,
       `Parcours: ${parcours}`,
-      `Année Universitaire: ${annee_univ}`,
+      `Année Universitaire: ${anneeUniv}`,
+      `imageUri: ${imageUri}`,
     ].join("\n");
     Alert.alert("Student Information", message);
     console.log("eto no manomboka");
@@ -212,7 +216,7 @@ const AddingEtudiant = () => {
     setAdresse("");
     setNiveau("");
     setParcours("");
-    setAnnee_univ("2023-2024");
+    setAnneeUniv("2023-2024");
     // matriculeRef.current.focus();
     setImageUri(null);
   };
@@ -413,8 +417,8 @@ const AddingEtudiant = () => {
             <TextInput
               mode="outlined"
               label="Année universitaire"
-              value={annee_univ}
-              onChangeText={setAnnee_univ}
+              value={anneeUniv}
+              onChangeText={setAnneeUniv}
               style={[styles.input, styles.annee_univ]}
               activeOutlineColor={colors.primary}
               outlineColor="#000"

@@ -9,8 +9,17 @@ export const removeSpaces = (str) => {
   return str.replace(/\s+/g, "");
 };
 
-export const transformDateToISO = (dateStr) => {
-  return dateStr.toISOString();
+export const transformDateToISO = (date) => {
+  // Ensure the input is a Date object
+  const d = new Date(date);
+
+  // Get the year, month, and day
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, "0"); // Months are 0-based, so add 1
+  const day = String(d.getDate()).padStart(2, "0");
+
+  // Return the formatted date
+  return `${year}-${month}-${day}`;
 };
 
 const monthNames = [
@@ -36,13 +45,11 @@ export const printableDate = (dateString) => {
   return `${day} ${month} ${year}`;
 };
 
-
 export const formatPhoneNumber = (phoneNumber) => {
   const cleaned = phoneNumber.replace(/\D/g, "");
   const pattern = /(\d{3})(\d{2})(\d{3})(\d{2})/;
   return cleaned.replace(pattern, "$1 $2 $3 $4");
 };
-
 
 // formatNumber.js
 export const formatCin = (number) => {

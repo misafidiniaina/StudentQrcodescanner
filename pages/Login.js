@@ -23,8 +23,8 @@ const LoginScreen = ({ navigation }) => {
     setLoading(true);
     try {
       const data = await login(username, password);
-      if (data.access_token) {
-        await AsyncStorage.setItem("access_token", data.access_token);
+      if (data.jwt) {
+        await AsyncStorage.setItem("access_token", data.jwt);
         setLoading(false);
         navigation.navigate("Dashboard");
       } else {
@@ -49,9 +49,7 @@ const LoginScreen = ({ navigation }) => {
   }, [ereur]);
 
   if (loading) {
-    return (
-      <Loading/>
-    );
+    return <Loading />;
   }
 
   return (
@@ -125,7 +123,7 @@ const styles = StyleSheet.create({
   textButton: {
     fontWeight: "bold",
     fontSize: 15,
-    color: "white"
+    color: "white",
   },
   errorMessage: {
     color: "red",
