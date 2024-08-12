@@ -64,7 +64,7 @@ const AddingEtudiant = () => {
   const [cin_date, setCin_date] = useState(new Date());
   const [adresse, setAdresse] = useState("");
   const [anneeUniv, setAnneeUniv] = useState("2023-2024");
-  const [sexe, setSexe] = useState("MALE")
+  const [sexe, setSexe] = useState("MALE");
 
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showCinDatePicker, setShowCinDatePicker] = useState(false);
@@ -163,45 +163,42 @@ const AddingEtudiant = () => {
     const formattedCin = removeSpaces(cin);
     const formattedDob = transformDateToISO(dob);
     const formattedDateCin = transformDateToISO(cin_date);
+
+    if (
+      !nom ||
+      !prenom ||
+      !email ||
+      !formattedTel ||
+      !formattedDob ||
+      !formattedCin ||
+      !formattedDateCin
+    ) {
+      Alert.alert("All fields are required");
+      return;
+    }
+
     try {
       const result = await addEtudiant(
         nom,
         prenom,
-        formattedDob,
+        dob,
         formattedCin,
-        formattedDateCin,
+        cin_date,
         formattedTel,
         email,
         adresse,
-        niveau,
         parcours,
         matricule,
         anneeUniv,
         sexe,
         imageUri
       );
-      Alert.alert(result);
+      Alert.alert("Success", "Student added successfully!");
+      handleCancelButton(); // Reset the form
     } catch (error) {
-      Alert.alert(error);
+      Alert.alert("Error", "Failed to add student. Please try again.");
+      console.error("Error adding student: ", error);
     }
-
-    const message = [
-      `Matricule: ${matricule}`,
-      `Nom: ${nom}`,
-      `Prénom: ${prenom}`,
-      `Date of Birth: ${formattedDob}`, // Make sure to format the date properly
-      `CIN: ${formattedCin}`,
-      `CIN Date: ${formattedDateCin}`,
-      `Téléphone: ${formattedTel}`,
-      `Email: ${email}`,
-      `Adresse: ${adresse}`,
-      `Niveau: ${niveau}`,
-      `Parcours: ${parcours}`,
-      `Année Universitaire: ${anneeUniv}`,
-      `imageUri: ${imageUri}`,
-    ].join("\n");
-    Alert.alert("Student Information", message);
-    console.log("eto no manomboka");
   };
 
   const handleCancelButton = () => {
@@ -314,7 +311,7 @@ const AddingEtudiant = () => {
   return (
     <PaperProvider theme={theme} style={styles.screen}>
       <LinearGradient
-        colors={["#67B99A","#67B99A","#67B99A","#469D89" ]}
+        colors={["#67B99A", "#67B99A", "#67B99A", "#469D89"]}
         style={styles.circleBackground}
       ></LinearGradient>
       <ScrollView style={styles.container}>
@@ -762,7 +759,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
   },
   shadow: {
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: {
       width: 0,
       height: 10,

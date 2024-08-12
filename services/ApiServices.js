@@ -92,7 +92,6 @@ export const addEtudiant = async (
   tel,
   email,
   adresse,
-  niveau,
   parcours,
   matricule,
   anneeUniv,
@@ -103,13 +102,13 @@ export const addEtudiant = async (
     const accessToken = await getAccessToken();
 
     // Determine the file extension and MIME type
-    const fileType = imageUri.split('.').pop().toLowerCase();
-    let mimeType = 'image/jpeg'; // Default to jpeg
+    const fileType = imageUri.split(".").pop().toLowerCase();
+    let mimeType = "image/jpeg"; // Default to jpeg
 
-    if (fileType === 'png') {
-      mimeType = 'image/png';
-    } else if (fileType === 'jpg' || fileType === 'jpeg') {
-      mimeType = 'image/jpeg';
+    if (fileType === "png") {
+      mimeType = "image/png";
+    } else if (fileType === "jpg" || fileType === "jpeg") {
+      mimeType = "image/jpeg";
     }
 
     // Create a FormData object
@@ -127,7 +126,6 @@ export const addEtudiant = async (
         tel,
         email,
         adresse,
-        niveau,
         parcours,
         matricule,
         anneeUniv,
@@ -157,6 +155,20 @@ export const addEtudiant = async (
 
     return response.data;
   } catch (error) {
+   /* if (error.response) {
+      // The request was made and the server responded with a status code
+      // that falls out of the range of 2xx
+      console.log("Error Data:", error.response.data);
+      console.log("Error Status:", error.response.status);
+      console.log("Error Headers:", error.response.headers);
+    } else if (error.request) {
+      // The request was made but no response was received
+      console.log("Error Request:", error.request);
+    } else {
+      // Something happened in setting up the request that triggered an Error
+      console.log("Error Message:", error.message);
+    }
+    console.log("Error Config:", error.config);*/
     throw error;
   }
 };
