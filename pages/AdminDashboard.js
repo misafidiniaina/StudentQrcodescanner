@@ -8,6 +8,7 @@ import {
   SafeAreaView,
   TouchableOpacity,
   Alert,
+  Image,
 } from "react-native";
 import { deleteEtudiant, getEtudiants } from "../services/ApiServices";
 import Loading from "../components/Loading";
@@ -16,6 +17,10 @@ import { useNavigation } from "@react-navigation/native";
 import { Swipeable, RectButton } from "react-native-gesture-handler";
 import { LinearGradient } from "expo-linear-gradient";
 import { colors } from "../utils/Utils";
+import profilePlaceholder from "../images/profile_placeholder.jpg";
+
+const EXPO_PUBLIC_API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
+const EXPO_PUBLIC_API_PORT = process.env.EXPO_PUBLIC_API_PORT;
 
 const AdminDashboard = () => {
   const navigation = useNavigation();
@@ -46,7 +51,8 @@ const AdminDashboard = () => {
   const handleStudentClick = (id) => {
     const student = students.find((etudiant) => etudiant.id === id);
     if (student) {
-      //console.log(JSON.stringify(student))
+      console.log(JSON.stringify(student));
+      //console.log(student.qrCode.data)
       navigation.navigate("Information ", { student });
     } else {
       Alert.alert("Error", "Student not found");
@@ -126,11 +132,16 @@ const AdminDashboard = () => {
       >
         <View style={[styles.studentInfoContainer]}>
           <View style={styles.left}>
-            <Text style={styles.matricule}>{item.matricule}</Text>
-            <View style={styles.class}>
-              <Text style={styles.studentInfo}>{item.niveau}</Text>
-              <Text style={styles.studentInfo}>{item.parcours}</Text>
-            </View>
+            {item.profilePicture ? (
+              <Image
+                source={{
+                  uri: `${EXPO_PUBLIC_API_BASE_URL}:${EXPO_PUBLIC_API_PORT}${item.profilePicture.path}`,
+                }}
+                style={styles.image}
+              />
+            ) : (
+              <Image source={profilePlaceholder} style={styles.image} />
+            )}
           </View>
           <View style={styles.right}>
             <Text
@@ -153,7 +164,7 @@ const AdminDashboard = () => {
   return (
     <SafeAreaView style={styles.container}>
       <LinearGradient
-        colors={["#67B99A","#469D89" ]}
+        colors={["#67B99A", "#469D89"]}
         style={styles.searchContainer}
       >
         <View style={styles.titleContainer}>
@@ -230,7 +241,7 @@ const styles = StyleSheet.create({
   searchIcon: {
     marginRight: 20,
     marginLeft: 10,
-    color: "gray"
+    color: "gray",
   },
   searchInput: {
     flex: 1,
@@ -279,6 +290,11 @@ const styles = StyleSheet.create({
     width: "80%",
     justifyContent: "center",
     paddingHorizontal: 20,
+  },
+  image: {
+    height: 50,
+    aspectRatio: 1,
+    borderRadius: 100
   },
   studentName: {
     color: "black",

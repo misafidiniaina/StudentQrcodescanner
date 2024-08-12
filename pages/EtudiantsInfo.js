@@ -30,10 +30,14 @@ import * as Sharing from "expo-sharing";
 import PDFLib, { PDFDocument, PDFPage } from "react-native-pdf-lib";
 import * as Print from "expo-print";
 
+const EXPO_PUBLIC_API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
+const EXPO_PUBLIC_API_PORT = process.env.EXPO_PUBLIC_API_PORT;
+
 const EtudiantsInfo = ({ route }) => {
   const { student } = route.params;
-  const [imageUri, setImageUri] = useState(null);
   const qrCodeRef = useRef(null);
+
+  
 
   const handleDownload = async () => {
     try {
@@ -109,7 +113,7 @@ const EtudiantsInfo = ({ route }) => {
       // Define the PDF file name
       const fileName = `${student.matricule}_${student.niveau}_${student.parcours}_${student.nom}_${student.prenom}.pdf`;
       const pdfUri = `${FileSystem.documentDirectory}${fileName}`;
-  
+
       // HTML content for the PDF
       const htmlContent = `
         <html>
@@ -127,14 +131,14 @@ const EtudiantsInfo = ({ route }) => {
           </body>
         </html>
       `;
-  
+
       // Generate the PDF
       const { uri } = await Print.printToFileAsync({
         html: htmlContent,
         // Specify the file path where the PDF will be saved
         filePath: pdfUri,
       });
-  
+
       // Save the PDF to media library
       const { status } = await MediaLibrary.requestPermissionsAsync();
       if (status !== "granted") {
@@ -144,10 +148,10 @@ const EtudiantsInfo = ({ route }) => {
         );
         return;
       }
-  
+
       const asset = await MediaLibrary.createAssetAsync(uri);
       await MediaLibrary.createAlbumAsync("PDFs", asset, false);
-  
+
       Alert.alert("PDF saved!", `Saved to gallery: ${uri}`);
     } catch (error) {
       console.error("Error creating PDF:", error);
@@ -185,8 +189,11 @@ const EtudiantsInfo = ({ route }) => {
               />
             </Svg>
           </TouchableOpacity>
-          {imageUri ? (
-            <Image source={{ uri: imageUri }} style={styles.image} />
+          {student.profilePicture ? (
+            <Image
+              source={{ uri: `${EXPO_PUBLIC_API_BASE_URL}:${EXPO_PUBLIC_API_PORT}${student.profilePicture.path}` }}
+              style={styles.image}
+            />
           ) : (
             <Image source={profilePlaceholder} style={styles.image} />
           )}
@@ -200,7 +207,7 @@ const EtudiantsInfo = ({ route }) => {
         <View style={styles.haveBackground}>
           <View style={styles.qrcodeSection}>
             <QRCode
-              value={student.qrcode[0].data}
+              value={student.qrCode.data}
               style={styles.qrcode}
               size={200}
               color="black"
