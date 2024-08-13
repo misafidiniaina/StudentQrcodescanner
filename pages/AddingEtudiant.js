@@ -16,6 +16,7 @@ import {
   Button,
   Provider as PaperProvider,
   DefaultTheme,
+  HelperText,
 } from "react-native-paper";
 
 import Icon from "react-native-vector-icons/MaterialIcons";
@@ -24,6 +25,7 @@ import { colors, removeSpaces, transformDateToISO } from "../utils/Utils";
 import { LinearGradient } from "expo-linear-gradient";
 import * as ImagePicker from "expo-image-picker";
 import profilePlaceholder from "../images/profile_placeholder.jpg";
+import Loading from "../components/Loading";
 
 const theme = {
   ...DefaultTheme,
@@ -73,9 +75,45 @@ const AddingEtudiant = () => {
   const [selectedValue, setSelectedValue] = useState("L1");
   const [radioselectedValue, setRadioselectedValue] = useState(null);
   const [listType, setListType] = useState("premierannee");
+  const [imageUri, setImageUri] = useState(null);
+  const [loading, setLoading] = useState(false);
+
   const textInputRef = useRef(null);
   const matriculeRef = useRef(null);
-  const [imageUri, setImageUri] = useState(null);
+  const nomRef = useRef(null);
+
+  const [inputBorderColor, setInputBorderColor] = useState("black");
+  const [matriculeError, setMatriculeError] = useState({
+    hasError: false,
+    display: "none",
+  });
+  const [nomError, setNomError] = useState({
+    hasError: false,
+    display: "none",
+  });
+  const [prenomError, setPrenomError] = useState({
+    hasError: false,
+    display: "none",
+  });
+  const [numeroError, setNumeroError] = useState({
+    hasError: false,
+    display: "none",
+    message: "Le numero téléphone est boligatoire",
+  });
+  const [emailError, setEmailError] = useState({
+    hasError: false,
+    display: "none",
+    message: "L'adrresse email est obligatoire",
+  });
+  const [adresseError, setAdresseError] = useState({
+    hasError: false,
+    display: "none",
+  });
+
+  const [cinError, setCinError] = useState({
+    hasError: false,
+    display: "none",
+  });
 
   const normalOptions = [
     { label: "IG", value: "IG" },
@@ -170,13 +208,61 @@ const AddingEtudiant = () => {
       !email ||
       !formattedTel ||
       !formattedDob ||
-      !formattedCin ||
-      !formattedDateCin
+      validateEmail(email) !== "" ||
+      formattedTel.length < 10 ||
+      !adresse ||
+      (cin && cin.length < 15)
     ) {
-      Alert.alert("All fields are required");
+      if (!matricule) {
+        setMatriculeError({
+          ...matriculeError,
+          hasError: true,
+          display: "block",
+        });
+      }
+      if (!nom) {
+        setNomError({ ...nomError, hasError: true, display: "block" });
+      }
+      if (!prenom) {
+        setPrenomError({ ...prenomError, hasError: true, display: "block" });
+      }
+      if (validateEmail(email) !== "") {
+        setEmailError({
+          ...emailError,
+          hasError: true,
+          display: "block",
+          message: validateEmail(email),
+        });
+      }
+      if (!formattedTel) {
+        setNumeroError({
+          ...numeroError,
+          hasError: true,
+          display: "block",
+          message: "Le numero de téléphone est obligatoire",
+        });
+      } else if (formattedTel.length < 13) {
+        console.log("ato");
+        setNumeroError({
+          ...numeroError,
+          hasError: true,
+          display: "block",
+          message: "Le numero de Téléphone doit contenir 10 chiffres",
+        });
+      }
+      if (!adresse) {
+        setAdresseError({ ...adresseError, hasError: true, display: "block" });
+      }
+      if (!formattedDob) {
+        Alert.alert("date de naissance re anh");
+      }
+      if (cin && cin.length < 15) {
+        setCinError({ ...cinError, hasError: true, display: "block" });
+      }
       return;
     }
 
+    setLoading(true);
     try {
       const result = await addEtudiant(
         nom,
@@ -193,11 +279,14 @@ const AddingEtudiant = () => {
         sexe,
         imageUri
       );
-      Alert.alert("Success", "Student added successfully!");
+      setLoading(false);
       handleCancelButton(); // Reset the form
     } catch (error) {
       Alert.alert("Error", "Failed to add student. Please try again.");
       console.error("Error adding student: ", error);
+      setLoading(false);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -216,6 +305,15 @@ const AddingEtudiant = () => {
     setAnneeUniv("2023-2024");
     // matriculeRef.current.focus();
     setImageUri(null);
+
+    setMatriculeError({ hasError: false, display: "none" });
+    setNomError({ hasError: false, display: "none" });
+    setPrenomError({ hasError: false, display: "none" });
+    setAdresseError({ hasError: false, display: "none" });
+    setNumeroError({ hasError: false, display: "none", message: "" });
+    setEmailError({ hasError: false, display: "none", message: "" });
+    setCinError({ hasError: false, display: "none" });
+
   };
   const onChangeDob = (event, selectedDate) => {
     const currentDate = selectedDate || dob;
@@ -288,6 +386,21 @@ const AddingEtudiant = () => {
       formattedText =
         formattedText.slice(0, 10) + " " + formattedText.slice(10);
     }
+    if (formattedText !== "" && formattedText.length == 13) {
+      setNumeroError({ hasError: false, display: "none" });
+    } else if (formattedText.length < 13 && formattedText !== "") {
+      setNumeroError({
+        hasError: true,
+        display: "block",
+        message: "Le numéro de téléphone doit contenir 10 chiffres",
+      });
+    } else if (formattedText == "") {
+      setNumeroError({
+        hasError: true,
+        display: "block",
+        message: "Le numéro de téléphone est obligatoire",
+      });
+    }
     setTel(formattedText);
   };
 
@@ -306,8 +419,55 @@ const AddingEtudiant = () => {
       formattedText =
         formattedText.slice(0, 11) + " " + formattedText.slice(11);
     }
+    if (formattedText.length == 15 || formattedText.length == 0) {
+      setCinError({ hasError: false, display: "none" });
+    } else {
+      setCinError({ hasError: true, display: "bock" });
+    }
     setCin(formattedText);
   };
+
+  const validateEmail = (email) => {
+    const allowedChars = /^[a-zA-Z0-9!#$%&'*+/=?^_`{|}~.-]+$/;
+    const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+    if (!email) {
+      return "Veuillez entrer votre adresse email.";
+    } else if (!regex.test(email)) {
+      if (!allowedChars.test(email.replace(/@/, ""))) {
+        return "L'email contient des caractères non autorisés.";
+      } else {
+        // Vérifier si l'email contient le symbole '@'
+        const atCount = (email.match(/@/g) || []).length;
+        if (atCount !== 1) {
+          return "L'email doit contenir un symbole '@'.";
+        }
+
+        // Séparer la partie locale et le domaine de l'email
+        const [localPart, domainPart] = email.split("@");
+
+        // Vérifier si le domaine contient un point '.'
+        if (!domainPart.includes(".")) {
+          return "Le domaine doit contenir un point '.' pour être valide.";
+        }
+
+        // Vérifier si le domaine commence ou termine par un point '.'
+        if (domainPart.startsWith(".")) {
+          return "Le domaine ne doit pas commencer par un point '.'";
+        }
+        if (domainPart.endsWith(".")) {
+          return "Le domaine ne doit pas se terminer par un point '.'";
+        }
+        return "Adresse email invalide";
+      }
+    }
+
+    return "";
+  };
+
+  if (loading) {
+    return <Loading />;
+  }
   return (
     <PaperProvider theme={theme} style={styles.screen}>
       <LinearGradient
@@ -344,11 +504,27 @@ const AddingEtudiant = () => {
               label="Numéro Matricule"
               style={styles.input}
               value={matricule}
-              onChangeText={setMatricule}
+              onChangeText={(text) => {
+                setMatricule(text);
+                if (text !== "") {
+                  setMatriculeError({ hasError: false, display: "none" });
+                } else {
+                  setMatriculeError({ hasError: true, display: "block" });
+                }
+              }}
               activeOutlineColor={colors.primary}
               outlineColor="#000"
               ref={matriculeRef}
+              error={matriculeError.hasError}
             />
+            <HelperText
+              type="error"
+              visible={matriculeError.hasError}
+              padding="normal"
+              style={{ display: matriculeError.display }}
+            >
+              Le numero matricule est obligatoire
+            </HelperText>
 
             <View style={styles.anarana}>
               <TextInput
@@ -356,21 +532,54 @@ const AddingEtudiant = () => {
                 label="Nom"
                 style={[styles.input, styles.namewidth]}
                 value={nom}
-                onChangeText={setNom}
+                onChangeText={(text) => {
+                  setNom(text);
+                  if (text !== "") {
+                    setNomError({ hasError: false, display: "none" });
+                  } else {
+                    setNomError({ hasError: true, display: "block" });
+                  }
+                }}
                 activeOutlineColor={colors.primary}
-                outlineColor="#000"
+                outlineColor={"#000"}
+                ref={nomRef}
+                error={nomError.hasError}
               />
+              <HelperText
+                type="error"
+                visible={nomError.hasError}
+                padding="normal"
+                style={{ display: nomError.display }}
+              >
+                Le nom est obligatoire
+              </HelperText>
 
               <TextInput
                 mode="outlined"
                 label="Prénom"
                 style={[styles.input, styles.namewidth]}
                 value={prenom}
-                onChangeText={setPrenom}
+                onChangeText={(text) => {
+                  setPrenom(text);
+                  if (text !== "") {
+                    setPrenomError({ hasError: false, display: "none" });
+                  } else {
+                    setPrenomError({ hasError: true, display: "block" });
+                  }
+                }}
                 activeOutlineColor={colors.primary}
                 outlineColor="#000"
+                error={prenomError.hasError}
               />
             </View>
+            <HelperText
+              type="error"
+              visible={prenomError.hasError}
+              padding="normal"
+              style={{ display: prenomError.display }}
+            >
+              Le prenom est obligatoire
+            </HelperText>
 
             <View style={styles.datePickerContainer}>
               <TextInput
@@ -466,7 +675,24 @@ const AddingEtudiant = () => {
               mode="outlined"
               label="Email"
               value={email}
-              onChangeText={setEmail}
+              onChangeText={(text) => {
+                setEmail(text);
+                if (validateEmail(text) === "") {
+                  setEmailError({
+                    ...emailError,
+                    hasError: false,
+                    display: "none",
+                    message: validateEmail(text),
+                  });
+                } else {
+                  setEmailError({
+                    ...emailError,
+                    hasError: true,
+                    display: "block",
+                    message: validateEmail(text),
+                  });
+                }
+              }}
               keyboardType="email-address"
               autoCapitalize="none"
               autoCompleteType="email"
@@ -474,7 +700,17 @@ const AddingEtudiant = () => {
               style={styles.input}
               activeOutlineColor={colors.primary}
               outlineColor="#000"
+              error={emailError.hasError}
             />
+            <HelperText
+              type="error"
+              visible={emailError.hasError}
+              padding="normal"
+              style={{ display: emailError.display }}
+            >
+              {emailError.message}
+            </HelperText>
+
             <TextInput
               mode="outlined"
               label="Numero Téléphone"
@@ -485,7 +721,16 @@ const AddingEtudiant = () => {
               activeOutlineColor={colors.primary}
               outlineColor="#000"
               maxLength={13}
+              error={numeroError.hasError}
             />
+            <HelperText
+              type="error"
+              visible={numeroError.hasError}
+              padding="normal"
+              style={{ display: numeroError.display }}
+            >
+              {numeroError.message}
+            </HelperText>
           </View>
         </View>
 
@@ -496,11 +741,28 @@ const AddingEtudiant = () => {
               mode="outlined"
               label="Adresse"
               value={adresse}
-              onChangeText={setAdresse}
+              onChangeText={(text) => {
+                setAdresse(text);
+                if (text !== "") {
+                  setAdresseError({ hasError: false, display: "none" });
+                } else {
+                  setAdresseError({ hasError: true, display: "block" });
+                }
+              }}
               style={styles.input}
               activeOutlineColor={colors.primary}
               outlineColor="#000"
+              error={adresseError.hasError}
             />
+            <HelperText
+              type="error"
+              visible={adresseError.hasError}
+              padding="normal"
+              style={{ display: adresseError.display }}
+            >
+              L'adresse est obligatoire
+            </HelperText>
+
             <TextInput
               mode="outlined"
               label="Numero de CIN"
@@ -511,7 +773,16 @@ const AddingEtudiant = () => {
               activeOutlineColor={colors.primary}
               outlineColor="#000"
               maxLength={15}
+              error={cinError.hasError}
             />
+            <HelperText
+              type="error"
+              visible={cinError.hasError}
+              padding="normal"
+              style={{ display: cinError.display }}
+            >
+              Le numero CIN doit contenir 12 chiffres
+            </HelperText>
 
             <View style={styles.datePickerContainer}>
               <TextInput
@@ -628,8 +899,8 @@ const styles = StyleSheet.create({
   },
   input: {
     width: "100%",
-    marginVertical: 2,
     borderColor: colors.primary,
+    marginVertical: 3,
     borderWidth: 0,
     backgroundColor: "whitesmoke",
   },
