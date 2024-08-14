@@ -59,7 +59,7 @@ const AddingEtudiant = () => {
   const [prenom, setPrenom] = useState("");
   const [dob, setDob] = useState(new Date());
   const [niveau, setNiveau] = useState("L2");
-  const [parcours, setParcours] = useState("ASR");
+  const [parcours, setParcours] = useState("");
   const [email, setEmail] = useState("");
   const [tel, setTel] = useState("");
   const [cin, setCin] = useState("");
@@ -125,6 +125,12 @@ const AddingEtudiant = () => {
     display: "none",
     message: "Veuillez entrer la date du carte d'identité",
   });
+  const [parcourError, setParcourError] = useState({
+    border: "black",
+    display: "none",
+    bdWidth: 1,
+  });
+
   const normalOptions = [
     { label: "IG", value: "IG" },
     { label: "GB", value: "GB" },
@@ -225,7 +231,8 @@ const AddingEtudiant = () => {
       formattedTel.length < 10 ||
       !adresse ||
       (cin && cin.length < 15) ||
-      (!cin && formattedDateCin == transformDateToISO(new Date()))
+      (!cin && formattedDateCin == transformDateToISO(new Date())) ||
+      !parcours
     ) {
       if (!matricule) {
         setMatriculeError({
@@ -303,6 +310,15 @@ const AddingEtudiant = () => {
           message: "Veuillez entrer la date du carte d'identité",
         });
       }
+      if (!parcours) {
+        setParcourError({
+          ...parcourError,
+          border: "#ad0c0c",
+          display: "block",
+          bdWidth: 2,
+        });
+      }
+      console.log(parcours);
       return;
     }
 
@@ -767,9 +783,18 @@ const AddingEtudiant = () => {
               style={[styles.input, styles.annee_univ]}
               activeOutlineColor={colors.primary}
               outlineColor="#000"
+              editable={false}
             />
             <Text style={styles.classLabel}>Classe</Text>
-            <View style={styles.class}>
+            <View
+              style={[
+                styles.class,
+                {
+                  borderColor: parcourError.border,
+                  borderWidth: parcourError.bdWidth,
+                },
+              ]}
+            >
               <View style={styles.niveauContainer}>
                 <Picker
                   selectedValue={selectedValue}
@@ -799,11 +824,27 @@ const AddingEtudiant = () => {
                     selected={radioselectedValue === option.value}
                     onPress={() => {
                       setRadioselectedValue(option.value);
+                      setParcourError({
+                        ...parcourError,
+                        border: "black",
+                        display: "none",
+                        bdWidth: 1,
+                      });
                     }}
                   />
                 ))}
               </View>
             </View>
+            <Text
+              style={{
+                display: parcourError.display,
+                color: parcourError.border,
+                paddingLeft: 10,
+              }}
+            >
+              {" "}
+              Veuillez choisir un parcours
+            </Text>
           </View>
         </View>
 
@@ -1200,8 +1241,6 @@ const styles = StyleSheet.create({
     marginBottom: 4,
     marginTop: 5,
     paddingTop: 10,
-    borderWidth: 1,
-    borderColor: "black",
     borderRadius: 10,
     overflow: "hidden",
   },
