@@ -98,12 +98,12 @@ const AddingEtudiant = () => {
   const [numeroError, setNumeroError] = useState({
     hasError: false,
     display: "none",
-    message: "Le numero téléphone est boligatoire",
+    message: "Veuillze entrer le numero de téléphone",
   });
   const [emailError, setEmailError] = useState({
     hasError: false,
     display: "none",
-    message: "L'adrresse email est obligatoire",
+    message: "Veuillez entrer l'adresse email",
   });
   const [adresseError, setAdresseError] = useState({
     hasError: false,
@@ -113,8 +113,18 @@ const AddingEtudiant = () => {
   const [cinError, setCinError] = useState({
     hasError: false,
     display: "none",
+    message: "Veuillez remplir le numéro CIN",
   });
-
+  const [dobError, setDobError] = useState({
+    hasError: false,
+    display: "none",
+    message: "Veuillez entrer la date de naissance",
+  });
+  const [cinDateError, setCinDateError] = useState({
+    hasError: false,
+    display: "none",
+    message: "Veuillez entrer la date du carte d'identité",
+  });
   const normalOptions = [
     { label: "IG", value: "IG" },
     { label: "GB", value: "GB" },
@@ -207,11 +217,15 @@ const AddingEtudiant = () => {
       !prenom ||
       !email ||
       !formattedTel ||
-      !formattedDob ||
+      formattedDob == transformDateToISO(new Date()) ||
+      (formattedDateCin == transformDateToISO(new Date()) &&
+        cin &&
+        cin.length == 15) ||
       validateEmail(email) !== "" ||
       formattedTel.length < 10 ||
       !adresse ||
-      (cin && cin.length < 15)
+      (cin && cin.length < 15) ||
+      (!cin && formattedDateCin == transformDateToISO(new Date()))
     ) {
       if (!matricule) {
         setMatriculeError({
@@ -239,25 +253,55 @@ const AddingEtudiant = () => {
           ...numeroError,
           hasError: true,
           display: "block",
-          message: "Le numero de téléphone est obligatoire",
+          message: "Veuillez entrer le numéro de téléphone",
         });
-      } else if (formattedTel.length < 13) {
+      } else if (formattedTel.length < 10) {
         console.log("ato");
         setNumeroError({
           ...numeroError,
           hasError: true,
           display: "block",
-          message: "Le numero de Téléphone doit contenir 10 chiffres",
+          message: "Veuillez entrer une numéro de 10 chiffres",
         });
       }
       if (!adresse) {
         setAdresseError({ ...adresseError, hasError: true, display: "block" });
       }
-      if (!formattedDob) {
-        Alert.alert("date de naissance re anh");
+      if (formattedDob == transformDateToISO(new Date())) {
+        setDobError({
+          ...dobError,
+          hasError: true,
+          display: "block",
+          message: "Veuillez entrer la date de naissance",
+        });
       }
       if (cin && cin.length < 15) {
-        setCinError({ ...cinError, hasError: true, display: "block" });
+        setCinError({
+          ...cinError,
+          hasError: true,
+          display: "block",
+          message: "Veuillez entrer une numero CIN de 12 chiffres",
+        });
+      }
+      if (!cin && formattedDateCin !== transformDateToISO(new Date())) {
+        setCinError({
+          ...cinError,
+          hasError: true,
+          display: "block",
+          message: "Veuillez remplir le numero CIN",
+        });
+      }
+      if (
+        formattedDateCin == transformDateToISO(new Date()) &&
+        cin &&
+        cin.length == 15
+      ) {
+        setCinDateError({
+          ...cinDateError,
+          hasError: true,
+          display: "block",
+          message: "Veuillez entrer la date du carte d'identité",
+        });
       }
       return;
     }
@@ -313,7 +357,12 @@ const AddingEtudiant = () => {
     setNumeroError({ hasError: false, display: "none", message: "" });
     setEmailError({ hasError: false, display: "none", message: "" });
     setCinError({ hasError: false, display: "none" });
-
+    setDobError({
+      hasError: false,
+      display: "none",
+      message: "",
+    });
+    setCinDateError({ hasError: false, display: "none", message: "" });
   };
   const onChangeDob = (event, selectedDate) => {
     const currentDate = selectedDate || dob;
@@ -351,6 +400,9 @@ const AddingEtudiant = () => {
           setDate(parsedDate); // Update date state
         }
       }
+    }
+    if (cleanedText.length == 0) {
+      setDate(new Date());
     }
   };
 
@@ -419,10 +471,70 @@ const AddingEtudiant = () => {
       formattedText =
         formattedText.slice(0, 11) + " " + formattedText.slice(11);
     }
-    if (formattedText.length == 15 || formattedText.length == 0) {
+
+    if (
+      formattedText.length == 15 &&
+      transformDateToISO(cin_date) !== transformDateToISO(new Date())
+    ) {
       setCinError({ hasError: false, display: "none" });
+      setCinDateError({ hasError: false, display: "none", message: "" });
+    } else if (
+      formattedText.length == 0 &&
+      transformDateToISO(cin_date) !== transformDateToISO(new Date())
+    ) {
+      setCinError({
+        hasError: true,
+        display: "block",
+        message: "Veuillez entrer une numero CIN",
+      });
+      setCinDateError({ hasError: false, display: "none", message: "" });
+    } else if (
+      formattedText.length == 0 &&
+      transformDateToISO(cin_date) == transformDateToISO(new Date())
+    ) {
+      setCinError({
+        hasError: false,
+        display: "none",
+        message: "",
+      });
+      setCinDateError({ hasError: false, display: "none", message: "" });
+    } else if (
+      formattedText.length !== 0 &&
+      transformDateToISO(cin_date) == transformDateToISO(new Date())
+    ) {
+      setCinError({
+        hasError: false,
+        display: "none",
+        message: "",
+      });
+      setCinDateError({ hasError: false, display: "none", message: "" });
+    } else if (
+      formattedText.length !== 0 &&
+      transformDateToISO(cin_date) !== transformDateToISO(new Date())
+    ) {
+      setCinError({
+        hasError: false,
+        display: "none",
+        message: "",
+      });
+      setCinDateError({ hasError: false, display: "none", message: "" });
     } else {
-      setCinError({ hasError: true, display: "bock" });
+      if (
+        transformDateToISO(cin_date) !== transformDateToISO(new Date()) &&
+        formattedText.length !== 0
+      ) {
+        setCinError({
+          hasError: false,
+          display: "none",
+          message: "Veuillez entrer une",
+        });
+      } else {
+        setCinError({
+          hasError: true,
+          display: "block",
+          message: "Veuillez entrer une",
+        });
+      }
     }
     setCin(formattedText);
   };
@@ -582,21 +694,48 @@ const AddingEtudiant = () => {
             </HelperText>
 
             <View style={styles.datePickerContainer}>
-              <TextInput
-                mode="outlined"
-                label="Date of Birth"
-                style={styles.dateInput}
-                value={dateInput}
-                onChangeText={(text) =>
-                  handleDateInputChange(text, setDateInput, setDob)
-                }
-                placeholder="JJ/MM/AAAA"
-                keyboardType="numeric"
-                editable={!showDatePicker} // Disable input when date picker is shown
-                activeOutlineColor={colors.primary}
-                outlineColor="#000"
-                onSelectionChange={handleSelectionChange}
-              />
+              <View style={styles.dateInputContainer}>
+                <TextInput
+                  mode="outlined"
+                  label="Date de naissance"
+                  style={styles.dateInput}
+                  value={dateInput}
+                  onChangeText={(text) => {
+                    handleDateInputChange(text, setDateInput, setDob);
+                    if (text !== "") {
+                      setDobError({
+                        ...dobError,
+                        hasError: false,
+                        display: "none",
+                        message: "La date de naissance est obligatoire",
+                      });
+                    } else {
+                      setDobError({
+                        ...dobError,
+                        hasError: true,
+                        display: "block",
+                        message: "La date de naissance est obligatoire",
+                      });
+                    }
+                  }}
+                  placeholder="JJ/MM/AAAA"
+                  keyboardType="numeric"
+                  editable={!showDatePicker} // Disable input when date picker is shown
+                  activeOutlineColor={colors.primary}
+                  outlineColor="#000"
+                  onSelectionChange={handleSelectionChange}
+                  error={dobError.hasError}
+                />
+                <HelperText
+                  type="error"
+                  visible={dobError.hasError}
+                  padding="normal"
+                  style={{ display: dobError.display }}
+                >
+                  {dobError.message}
+                </HelperText>
+              </View>
+
               <TouchableOpacity
                 style={styles.dateBtn}
                 onPress={() => setShowDatePicker(true)}
@@ -781,24 +920,77 @@ const AddingEtudiant = () => {
               padding="normal"
               style={{ display: cinError.display }}
             >
-              Le numero CIN doit contenir 12 chiffres
+              {cinError.message}
             </HelperText>
 
             <View style={styles.datePickerContainer}>
-              <TextInput
-                mode="outlined"
-                label="CIN Date"
-                style={styles.dateInput}
-                value={cinDateInput}
-                onChangeText={(text) =>
-                  handleDateInputChange(text, setCinDateInput, setCin_date)
-                }
-                placeholder="JJ/MM/AAAA"
-                keyboardType="numeric"
-                editable={!showCinDatePicker} // Disable input when date picker is shown
-                activeOutlineColor={colors.primary}
-                outlineColor="#000"
-              />
+              <View style={styles.dateInputContainer}>
+                <TextInput
+                  mode="outlined"
+                  label="Date du CIN"
+                  style={styles.dateInput}
+                  value={cinDateInput}
+                  onChangeText={(text) => {
+                    handleDateInputChange(text, setCinDateInput, setCin_date);
+                    if (text !== "" && cin) {
+                      setCinDateError({
+                        ...dobError,
+                        hasError: false,
+                        display: "none",
+                        message: "La date de naissance est obligatoire",
+                      });
+                      setCinError({
+                        ...cinError,
+                        hasError: false,
+                        display: "none",
+                        message: "",
+                      });
+                    } else if (cin && text == "") {
+                      setCinDateError({
+                        ...dobError,
+                        hasError: true,
+                        display: "block",
+                        message: "Veuillez entrer la date du carte d'identité",
+                      });
+                    } else if (!cin && text == "") {
+                      setCinDateError({
+                        ...dobError,
+                        hasError: false,
+                        display: "none",
+                        message: "La date de naissance est obligatoire",
+                      });
+                      setCinError({
+                        ...cinError,
+                        hasError: false,
+                        display: "none",
+                        message: "",
+                      });
+                    } else {
+                      setCinDateError({
+                        ...dobError,
+                        hasError: true,
+                        display: "block",
+                        message:
+                          "Laisser ce champ vide s'il n'y a pas de carte",
+                      });
+                    }
+                  }}
+                  placeholder="JJ/MM/AAAA"
+                  keyboardType="numeric"
+                  editable={!showCinDatePicker} // Disable input when date picker is shown
+                  activeOutlineColor={colors.primary}
+                  outlineColor="#000"
+                  error={cinDateError.hasError}
+                />
+                <HelperText
+                  type="error"
+                  visible={cinDateError.hasError}
+                  padding="normal"
+                  style={{ display: cinDateError.display }}
+                >
+                  {cinDateError.message}
+                </HelperText>
+              </View>
               <TouchableOpacity
                 style={styles.dateBtn}
                 onPress={() => setShowCinDatePicker(true)}
@@ -966,10 +1158,13 @@ const styles = StyleSheet.create({
   },
   datePickerContainer: {
     flexDirection: "row",
-    alignItems: "center",
+    alignItems: "flex-start",
     marginVertical: 10,
   },
   dateInput: {
+    backgroundColor: "whitesmoke",
+  },
+  dateInputContainer: {
     flex: 1,
     marginRight: 10,
     backgroundColor: "whitesmoke",
@@ -983,6 +1178,7 @@ const styles = StyleSheet.create({
     borderRadius: 25, // Makes the button circular
     borderColor: colors.primary,
     borderWidth: 0, // Border around the button
+    marginTop: 3,
   },
   picker: {
     width: "100%",
