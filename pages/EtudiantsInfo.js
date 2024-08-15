@@ -29,6 +29,7 @@ import * as ImageManipulator from "expo-image-manipulator";
 import * as Sharing from "expo-sharing";
 import PDFLib, { PDFDocument, PDFPage } from "react-native-pdf-lib";
 import * as Print from "expo-print";
+import { useNavigation } from "@react-navigation/native";
 
 const EXPO_PUBLIC_API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
 const EXPO_PUBLIC_API_PORT = process.env.EXPO_PUBLIC_API_PORT;
@@ -36,8 +37,7 @@ const EXPO_PUBLIC_API_PORT = process.env.EXPO_PUBLIC_API_PORT;
 const EtudiantsInfo = ({ route }) => {
   const { student } = route.params;
   const qrCodeRef = useRef(null);
-
-  
+  const navigation = useNavigation();
 
   const handleDownload = async () => {
     try {
@@ -159,6 +159,10 @@ const EtudiantsInfo = ({ route }) => {
     }
   };
 
+  const handleEditBtn = () => {
+    navigation.navigate("Editer Étudiant", { student });
+  };
+
   return (
     <SafeAreaProvider>
       <LinearGradient
@@ -167,7 +171,7 @@ const EtudiantsInfo = ({ route }) => {
       ></LinearGradient>
       <ScrollView style={styles.container}>
         <View style={[styles.section, styles.informationSection]}>
-          <TouchableOpacity style={styles.editingBtn}>
+          <TouchableOpacity style={styles.editingBtn} onPress={handleEditBtn}>
             <Svg
               xmlns="http://www.w3.org/2000/svg"
               width="29"
@@ -191,7 +195,9 @@ const EtudiantsInfo = ({ route }) => {
           </TouchableOpacity>
           {student.profilePicture ? (
             <Image
-              source={{ uri: `${EXPO_PUBLIC_API_BASE_URL}:${EXPO_PUBLIC_API_PORT}${student.profilePicture.path}` }}
+              source={{
+                uri: `${EXPO_PUBLIC_API_BASE_URL}:${EXPO_PUBLIC_API_PORT}${student.profilePicture.path}`,
+              }}
               style={styles.image}
             />
           ) : (
@@ -248,12 +254,16 @@ const EtudiantsInfo = ({ route }) => {
             </View>
             <View style={styles.sectionLine}>
               <FontAwesome name="vcard" size={15} />
-              <Text style={styles.info}>{formatCin(student.cin)}</Text>
+              <Text style={styles.info}>
+                {student.cin ? formatCin(student.cin) : "Encore Mineur"}
+              </Text>
             </View>
-            <Text style={styles.info}>
-              <Text style={styles.faitLe}>Fait le </Text>
-              {printableDate(student.cin_date)}
-            </Text>
+            {student.cin_date && (
+              <Text style={styles.info}>
+                <Text style={styles.faitLe}>Fait le </Text>
+                {printableDate(student.cin_date)}
+              </Text>
+            )}
           </View>
           <View style={styles.section}>
             <View style={styles.sectionLine}>

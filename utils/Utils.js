@@ -22,6 +22,11 @@ export const transformDateToISO = (date) => {
   return `${year}-${month}-${day}`;
 };
 
+export const dateFormatting = (str) => {
+  const [year, month, day] = str.split('-');
+  return `${day}/${month}/${year}`;
+};
+
 const monthNames = [
   "Janvier",
   "Février",
@@ -51,7 +56,6 @@ export const formatPhoneNumber = (phoneNumber) => {
   return cleaned.replace(pattern, "$1 $2 $3 $4");
 };
 
-// formatNumber.js
 export const formatCin = (number) => {
   const cleaned = number.replace(/\D/g, "");
   const pattern = /(\d{3})(\d{3})(\d{3})(\d{3})/;

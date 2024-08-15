@@ -48,12 +48,9 @@ const LoginScreen = ({ navigation }) => {
     }
   }, [ereur]);
 
-  if (loading) {
-    return <Loading />;
-  }
-
   return (
     <View style={styles.container}>
+      {loading && <Loading />}
       <View style={styles.inputContainer}>
         <Text style={styles.label}>Username</Text>
         <TextInput

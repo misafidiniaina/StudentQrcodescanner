@@ -157,10 +157,6 @@ const AdminDashboard = () => {
     </Swipeable>
   );
 
-  if (loading) {
-    return <Loading />;
-  }
-
   return (
     <SafeAreaView style={styles.container}>
       <LinearGradient
@@ -186,6 +182,7 @@ const AdminDashboard = () => {
           />
         </View>
       </LinearGradient>
+      {loading && <Loading />}
       {filteredStudents?.length > 0 ? (
         <FlatList
           data={filteredStudents}
@@ -294,7 +291,7 @@ const styles = StyleSheet.create({
   image: {
     height: 50,
     aspectRatio: 1,
-    borderRadius: 100
+    borderRadius: 100,
   },
   studentName: {
     color: "black",

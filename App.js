@@ -6,7 +6,7 @@ import { createStackNavigator } from "@react-navigation/stack";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { Provider, Menu } from "react-native-paper";
 import Entypo from "react-native-vector-icons/Entypo";
-import Feather from "react-native-vector-icons/Feather"
+import Feather from "react-native-vector-icons/Feather";
 
 import Scann from "./pages/Scann";
 import Result from "./pages/Result";
@@ -14,6 +14,7 @@ import Login from "./pages/Login";
 import AdminDashboard from "./pages/AdminDashboard";
 import AddingEtudiant from "./pages/AddingEtudiant";
 import EtudiantsInfo from "./pages/EtudiantsInfo";
+import EditEtudiant from "./pages/EditEtudiant";
 
 const Stack = createStackNavigator();
 
@@ -107,7 +108,7 @@ export default function App() {
                       }}
                       title="Supprimer l'étudiant"
                       leadingIcon={({ size }) => (
-                        <Feather name="trash-2" color="gray" size={size-3} />
+                        <Feather name="trash-2" color="gray" size={size - 3} />
                       )}
                       titleStyle={{
                         color: "gray",
@@ -117,6 +118,19 @@ export default function App() {
                 ),
                 headerRightContainerStyle: styles.rightStyle,
               })}
+            />
+            <Stack.Screen
+              name="Editer Étudiant"
+              component={EditEtudiant}
+              title="Modification"
+              options={{
+                headerTitleAlign: "center",
+                headerTitleStyle: styles.ajoutTitle,
+                headerStyle: styles.ajoutHeader,
+                headerShadowVisible: false,
+                headerBackTitleStyle: styles.backStyle,
+                headerTintColor: "white",
+              }}
             />
           </Stack.Navigator>
         </NavigationContainer>

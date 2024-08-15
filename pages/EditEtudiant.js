@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   View,
   StyleSheet,
@@ -9,7 +9,10 @@ import {
   ScrollView,
   Image,
 } from "react-native";
-import { addEtudiant, convertImageToBase64 } from "../services/ApiServices";
+import {
+  updateEtudiant,
+  updateStudentProfilePicture,
+} from "../services/ApiServices";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import {
   TextInput,
@@ -21,11 +24,22 @@ import {
 
 import Icon from "react-native-vector-icons/MaterialIcons";
 import { Picker } from "@react-native-picker/picker";
-import { colors, removeSpaces, transformDateToISO } from "../utils/Utils";
+import {
+  colors,
+  dateFormatting,
+  formatCin,
+  formatPhoneNumber,
+  removeSpaces,
+  transformDateToISO,
+} from "../utils/Utils";
 import { LinearGradient } from "expo-linear-gradient";
 import * as ImagePicker from "expo-image-picker";
 import profilePlaceholder from "../images/profile_placeholder.jpg";
 import Loading from "../components/Loading";
+import { useNavigation } from "@react-navigation/native";
+
+const EXPO_PUBLIC_API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
+const EXPO_PUBLIC_API_PORT = process.env.EXPO_PUBLIC_API_PORT;
 
 const theme = {
   ...DefaultTheme,
@@ -53,36 +67,59 @@ const parseDate = (dateString) => {
 // Helper function to validate date
 const isValidDate = (date) => !isNaN(date.getTime());
 
-const AddingEtudiant = () => {
-  const [matricule, setMatricule] = useState("");
-  const [nom, setNom] = useState("");
-  const [prenom, setPrenom] = useState("");
-  const [dob, setDob] = useState(new Date());
+const EditEtudiant = ({ route }) => {
+  const { student } = route.params;
+  const navigation = useNavigation();
+
+  const [matricule, setMatricule] = useState(student.matricule);
+  const [nom, setNom] = useState(student.nom);
+  const [prenom, setPrenom] = useState(student.prenom);
+  const [dob, setDob] = useState(new Date(student.dob));
   const [niveau, setNiveau] = useState("L2");
-  const [parcours, setParcours] = useState("");
-  const [email, setEmail] = useState("");
-  const [tel, setTel] = useState("");
+  const [parcours, setParcours] = useState(student.parcours);
+  const [email, setEmail] = useState(student.email);
+  const [tel, setTel] = useState(formatPhoneNumber(student.tel));
   const [cin, setCin] = useState("");
   const [cin_date, setCin_date] = useState(new Date());
-  const [adresse, setAdresse] = useState("");
+  const [adresse, setAdresse] = useState(student.adresse);
   const [anneeUniv, setAnneeUniv] = useState("2023-2024");
-  const [sexe, setSexe] = useState("MALE");
+  const [sexe, setSexe] = useState(student.sexe);
 
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showCinDatePicker, setShowCinDatePicker] = useState(false);
-  const [dateInput, setDateInput] = useState("");
+  const [dateInput, setDateInput] = useState(dateFormatting(student.dob));
   const [cinDateInput, setCinDateInput] = useState("");
-  const [selectedValue, setSelectedValue] = useState("L1");
-  const [radioselectedValue, setRadioselectedValue] = useState(null);
+  const [selectedValue, setSelectedValue] = useState(student.niveau);
+  const [radioselectedValue, setRadioselectedValue] = useState(
+    student.parcours
+  );
   const [listType, setListType] = useState("lisence");
-  const [imageUri, setImageUri] = useState(null);
+  const [imageUri, setImageUri] = useState("");
   const [loading, setLoading] = useState(false);
+  const [changePhoto, setChangePhoto] = useState(false);
 
   const textInputRef = useRef(null);
   const matriculeRef = useRef(null);
   const nomRef = useRef(null);
 
-  const [inputBorderColor, setInputBorderColor] = useState("black");
+  useEffect(() => {
+    if (student.cin_date) {
+      setCin_date(new Date(student.cin_date));
+      setCinDateInput(dateFormatting(student.cin_date));
+    }
+    if (student.cin) {
+      setCin(formatCin(student.cin));
+    }
+    if (student.profilePicture) {
+      setImageUri(
+        `${EXPO_PUBLIC_API_BASE_URL}:${EXPO_PUBLIC_API_PORT}${student.profilePicture.path}`
+      );
+    }
+    if (student.niveau !== "L1") {
+      setListType("normal");
+    }
+  }, [student]);
+
   const [matriculeError, setMatriculeError] = useState({
     hasError: false,
     display: "none",
@@ -215,7 +252,7 @@ const AddingEtudiant = () => {
     );
   };
 
-  const handleAddEtudiant = async () => {
+  const handleUpdateEtudiant = async () => {
     const formattedTel = removeSpaces(tel);
     const formattedCin = removeSpaces(cin);
     const formattedDob = transformDateToISO(dob);
@@ -224,7 +261,6 @@ const AddingEtudiant = () => {
     if (!cin && formattedDateCin == transformDateToISO(new Date())) {
       formattedDateCin = null;
     }
-
     if (
       !nom ||
       !prenom ||
@@ -323,69 +359,88 @@ const AddingEtudiant = () => {
           bdWidth: 2,
         });
       }
-      console.log(niveau);
+      console.log("ato ndray e");
+      console.log(formattedDateCin);
       return;
     }
 
     setLoading(true);
+
+    const actualValue = {
+      id: student.id,
+      nom: nom,
+      prenom: prenom,
+      dob: formattedDob,
+      cin: formattedCin,
+      cin_date: formattedDateCin,
+      email: email,
+      tel: formattedTel,
+      matricule: matricule,
+      adresse: adresse,
+      parcours: parcours,
+      anneeUniv: student.anneeUniv,
+      niveau: niveau,
+      sexe: sexe,
+      qrCode: student.qrCode,
+      profilePicture: student.profilePicture,
+    };
+
+    const changes = {};
+    for (const key in student) {
+      if (student[key] !== actualValue[key]) {
+        changes[key] = actualValue[key];
+      }
+    }
+
+    if (imageUri.includes(student.profilePicture.path)) {
+      setChangePhoto(false);
+    } else {
+      setChangePhoto(true);
+    }
+
+    console.log(Object.keys(changes).length);
+    console.log(changePhoto);
     try {
-      const result = await addEtudiant(
-        nom,
-        prenom,
-        dob,
-        formattedCin,
-        formattedDateCin,
-        formattedTel,
-        email,
-        adresse,
-        parcours,
-        niveau,
-        matricule,
-        anneeUniv,
-        sexe,
-        imageUri
-      );
+      if (Object.keys(changes).length === 0 && !changePhoto) {
+        Alert.alert("tsy nisy raha niova");
+      } else {
+        if (Object.keys(changes).length !== 0) {
+          const resutl = await updateEtudiant(student.id, changes);
+        }
+        if (changePhoto) {
+          const response = await updateStudentProfilePicture(
+            student.id,
+            imageUri
+          );
+        }
+        handleCancelButton();
+      }
       setLoading(false);
-      handleCancelButton(); // Reset the form
+      handleCancelButton();
     } catch (error) {
-      Alert.alert("Error", "Failed to add student. Please try again.");
-      console.error("Error adding student: ", error.response.data);
-      setLoading(false);
+      if (error.response) {
+        // The request was made and the server responded with a status code
+        // that falls out of the range of 2xx
+        console.log("Error Data:", error.response.data);
+        console.log("Error Status:", error.response.status);
+        console.log("Error Headers:", error.response.headers);
+      } else if (error.request) {
+        // The request was made but no response was received
+        console.log("Error Request:", error.request);
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        console.log("Error Message:", error.message);
+      }
+      console.log("Error Config:", error.config);
     } finally {
       setLoading(false);
     }
   };
 
   const handleCancelButton = () => {
-    setNom("");
-    setPrenom("");
-    setMatricule("");
-    setDob("");
-    setCin("");
-    setCin_date("");
-    setTel("");
-    setEmail("");
-    setAdresse("");
-    setNiveau("");
-    setParcours("");
-    setAnneeUniv("2023-2024");
-    // matriculeRef.current.focus();
-    setImageUri(null);
-
-    setMatriculeError({ hasError: false, display: "none" });
-    setNomError({ hasError: false, display: "none" });
-    setPrenomError({ hasError: false, display: "none" });
-    setAdresseError({ hasError: false, display: "none" });
-    setNumeroError({ hasError: false, display: "none", message: "" });
-    setEmailError({ hasError: false, display: "none", message: "" });
-    setCinError({ hasError: false, display: "none" });
-    setDobError({
-      hasError: false,
-      display: "none",
-      message: "",
-    });
-    setCinDateError({ hasError: false, display: "none", message: "" });
+    navigation.goBack();
   };
+
   const onChangeDob = (event, selectedDate) => {
     const currentDate = selectedDate || dob;
     setShowDatePicker(Platform.OS === "ios");
@@ -1001,10 +1056,10 @@ const AddingEtudiant = () => {
                       });
                     } else if (!cin && text == "") {
                       setCinDateError({
-                        ...dobError,
+                        ...cinDateError,
                         hasError: false,
                         display: "none",
-                        message: "La date de naissance est obligatoire",
+                        message: "",
                       });
                       setCinError({
                         ...cinError,
@@ -1071,16 +1126,16 @@ const AddingEtudiant = () => {
             colors={[colors.primary, colors.primary]} // Gradient colors
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
-            style={styles.addbutton}
+            style={styles.updatebutton}
           >
             <Button
               mode="contained"
-              onPress={handleAddEtudiant}
               style={styles.button}
               textColor="white"
               icon="account-plus"
+              onPress={handleUpdateEtudiant}
             >
-              Ajouter
+              Modifier
             </Button>
           </LinearGradient>
         </View>
@@ -1096,7 +1151,6 @@ const styles = StyleSheet.create({
     zIndex: 0,
   },
   screen: {
-    flex: 1,
     backgroundColor: "white",
   },
   circleBackground: {
@@ -1163,7 +1217,7 @@ const styles = StyleSheet.create({
     paddingVertical: 2,
     width: "100%",
   },
-  addbutton: {
+  updatebutton: {
     marginBottom: 30,
     marginTop: 20,
     borderRadius: 50,
@@ -1284,4 +1338,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default AddingEtudiant;
+export default EditEtudiant;
