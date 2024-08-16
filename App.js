@@ -7,6 +7,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import { Provider, Menu } from "react-native-paper";
 import Entypo from "react-native-vector-icons/Entypo";
 import Feather from "react-native-vector-icons/Feather";
+import Toast from "react-native-toast-message";
 
 import Scann from "./pages/Scann";
 import Result from "./pages/Result";
@@ -15,6 +16,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import AddingEtudiant from "./pages/AddingEtudiant";
 import EtudiantsInfo from "./pages/EtudiantsInfo";
 import EditEtudiant from "./pages/EditEtudiant";
+import NoResult from "./pages/NoResult";
 
 const Stack = createStackNavigator();
 
@@ -68,62 +70,70 @@ export default function App() {
               }}
             />
             <Stack.Screen
-              name="Information "
+              name="studentInfoPage"
               component={EtudiantsInfo}
-              options={() => ({
-                title: null,
-                headerTitleAlign: "center",
-                headerTitleStyle: styles.ajoutTitle,
-                headerStyle: styles.ajoutHeader,
-                headerShadowVisible: false,
-                headerBackTitleStyle: styles.backStyle,
-                headerTintColor: "white",
-                headerLeft: null,
-                headerRight: () => (
-                  <Menu
-                    visible={visible}
-                    onDismiss={closeMenu}
-                    anchorPosition="bottom"
-                    statusBarHeight={25}
-                    anchor={
-                      <TouchableOpacity
-                        onPress={openMenu}
-                        style={styles.threeDotContainer}
-                      >
-                        <Entypo
-                          name="dots-three-horizontal"
-                          size={30}
-                          color="#fff"
-                        />
-                      </TouchableOpacity>
-                    }
-                    contentStyle={{
-                      backgroundColor: "whitesmoke",
-                    }}
-                  >
-                    <Menu.Item
-                      onPress={() => {
-                        closeMenu();
-                        console.log("Supprimer l'étudiant");
+              options={({ route }) => {
+                // Extract params from route
+                const { isEditable, student } = route.params;
+
+                // Return the options object
+                return {
+                  title: "Information",
+                  headerTitleAlign: "center",
+                  headerTitleStyle: styles.ajoutTitle,
+                  headerStyle: styles.ajoutHeader,
+                  headerShadowVisible: false,
+                  headerBackTitleStyle: styles.backStyle,
+                  headerTintColor: "white",
+                  headerLeft: null,
+                  headerRight: () => (
+                    <Menu
+                      visible={visible}
+                      onDismiss={closeMenu}
+                      anchorPosition="bottom"
+                      statusBarHeight={25}
+                      anchor={
+                        <TouchableOpacity
+                          onPress={openMenu}
+                          style={styles.threeDotContainer}
+                        >
+                          <Entypo
+                            name="dots-three-horizontal"
+                            size={30}
+                            color="#fff"
+                          />
+                        </TouchableOpacity>
+                      }
+                      contentStyle={{
+                        backgroundColor: "whitesmoke",
                       }}
-                      title="Supprimer l'étudiant"
-                      leadingIcon={({ size }) => (
-                        <Feather name="trash-2" color="gray" size={size - 3} />
-                      )}
-                      titleStyle={{
-                        color: "gray",
-                      }}
-                    />
-                  </Menu>
-                ),
-                headerRightContainerStyle: styles.rightStyle,
-              })}
+                    >
+                      <Menu.Item
+                        onPress={() => {
+                          closeMenu();
+                          console.log(student.id);
+                        }}
+                        disabled={!isEditable} // Control disabled state based on isEditable
+                        title="Supprimer l'étudiant"
+                        leadingIcon={({ size, color }) => (
+                          <Feather
+                            name="trash-2"
+                            color={color}
+                            size={size - 3}
+                          />
+                        )}
+                      />
+                    </Menu>
+                  ),
+                  headerRightContainerStyle: styles.rightStyle,
+                };
+              }}
             />
             <Stack.Screen
               name="Editer Étudiant"
               component={EditEtudiant}
-              title="Modification"
               options={{
+                title: "Modification",
                 headerTitleAlign: "center",
                 headerTitleStyle: styles.ajoutTitle,
                 headerStyle: styles.ajoutHeader,
@@ -132,9 +142,17 @@ export default function App() {
                 headerTintColor: "white",
               }}
             />
+            <Stack.Screen
+              name="NoResult"
+              component={NoResult}
+              options={{
+                headerShown: false,
+              }}
+            />
           </Stack.Navigator>
         </NavigationContainer>
         <StatusBar style="auto" />
+        <Toast />
       </SafeAreaProvider>
     </Provider>
   );

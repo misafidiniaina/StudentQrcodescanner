@@ -35,9 +35,11 @@ const EXPO_PUBLIC_API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
 const EXPO_PUBLIC_API_PORT = process.env.EXPO_PUBLIC_API_PORT;
 
 const EtudiantsInfo = ({ route }) => {
-  const { student } = route.params;
+  const { isEditable, student } = route.params;
   const qrCodeRef = useRef(null);
   const navigation = useNavigation();
+
+  const hasProfilePicture = student?.profilePicture?.path;
 
   const handleDownload = async () => {
     try {
@@ -171,29 +173,32 @@ const EtudiantsInfo = ({ route }) => {
       ></LinearGradient>
       <ScrollView style={styles.container}>
         <View style={[styles.section, styles.informationSection]}>
-          <TouchableOpacity style={styles.editingBtn} onPress={handleEditBtn}>
-            <Svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="29"
-              height="30"
-              fill="none"
-              viewBox="0 0 29 30"
-            >
-              <Path
-                fill={colors.primary}
-                fill-rule="evenodd"
-                d="M14.367 5.292H3.834C1.992 5.292.5 6.874.5 8.822V26.47C.5 28.42 1.992 30 3.834 30h18.334c1.842 0 3.333-1.58 3.333-3.53V13.552l-6.523 6.907a4.1 4.1 0 0 1-2.127 1.207l-4.469.947c-2.917.617-5.487-2.105-4.903-5.192l.893-4.732a4.497 4.497 0 0 1 1.14-2.253l4.855-5.144Z"
-                clip-rule="evenodd"
-              />
-              <Path
-                fill={colors.primary}
-                fill-rule="evenodd"
-                d="M28.578 2.195a3.667 3.667 0 0 0-.728-1.153A3.334 3.334 0 0 0 26.76.27a3.2 3.2 0 0 0-2.574 0 3.334 3.334 0 0 0-1.09.772l-.91.963L26.94 7.04l.91-.965a3.5 3.5 0 0 0 .728-1.154 3.734 3.734 0 0 0 0-2.725Zm-3.993 7.339-4.756-5.035-7.962 8.433a.9.9 0 0 0-.228.45l-.893 4.734c-.117.617.398 1.16.98 1.037l4.47-.945a.833.833 0 0 0 .425-.242l7.964-8.432Z"
-                clip-rule="evenodd"
-              />
-            </Svg>
-          </TouchableOpacity>
-          {student.profilePicture ? (
+          {isEditable && (
+            <TouchableOpacity style={styles.editingBtn} onPress={handleEditBtn}>
+              <Svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="29"
+                height="30"
+                fill="none"
+                viewBox="0 0 29 30"
+              >
+                <Path
+                  fill={colors.primary}
+                  fill-rule="evenodd"
+                  d="M14.367 5.292H3.834C1.992 5.292.5 6.874.5 8.822V26.47C.5 28.42 1.992 30 3.834 30h18.334c1.842 0 3.333-1.58 3.333-3.53V13.552l-6.523 6.907a4.1 4.1 0 0 1-2.127 1.207l-4.469.947c-2.917.617-5.487-2.105-4.903-5.192l.893-4.732a4.497 4.497 0 0 1 1.14-2.253l4.855-5.144Z"
+                  clip-rule="evenodd"
+                />
+                <Path
+                  fill={colors.primary}
+                  fill-rule="evenodd"
+                  d="M28.578 2.195a3.667 3.667 0 0 0-.728-1.153A3.334 3.334 0 0 0 26.76.27a3.2 3.2 0 0 0-2.574 0 3.334 3.334 0 0 0-1.09.772l-.91.963L26.94 7.04l.91-.965a3.5 3.5 0 0 0 .728-1.154 3.734 3.734 0 0 0 0-2.725Zm-3.993 7.339-4.756-5.035-7.962 8.433a.9.9 0 0 0-.228.45l-.893 4.734c-.117.617.398 1.16.98 1.037l4.47-.945a.833.833 0 0 0 .425-.242l7.964-8.432Z"
+                  clip-rule="evenodd"
+                />
+              </Svg>
+            </TouchableOpacity>
+          )}
+
+          {hasProfilePicture ? (
             <Image
               source={{
                 uri: `${EXPO_PUBLIC_API_BASE_URL}:${EXPO_PUBLIC_API_PORT}${student.profilePicture.path}`,

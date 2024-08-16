@@ -13,6 +13,8 @@ import {
 import { useNavigation } from "@react-navigation/native";
 import Svg, { Path } from "react-native-svg";
 import { colors } from "../utils/Utils";
+import { fetchData } from "../services/ApiServices";
+import Loading from "../components/Loading";
 
 export default function App() {
   const navigation = useNavigation();
@@ -23,6 +25,8 @@ export default function App() {
   const [scanned, setScanned] = useState(false);
   const [scaleValue] = useState(new Animated.Value(1));
   const [lightdisplay, setLightdisplay] = useState("white");
+  const [loading, setLoading] = useState(false);
+  const [donnees, setDonnees] = useState(null);
 
   useEffect(() => {
     // Define the zoom animation
@@ -77,17 +81,31 @@ export default function App() {
     }
   }
 
-  const handleQrCodeScanned = ({ type, data }) => {
-    setScanned(true);
-    navigation.navigate("Information", { data });
-    setScanned(false);
+  const handleQrCodeScanned = async ({ type, data }) => {
+    try {
+      setLoading(true);
+      const result = await fetchData(data);
+      navigation.navigate("studentInfoPage", {
+        isEditable: false,
+        student: result,
+      });
+      setLoading(false);
+    } catch (error) {
+      setLoading(true);
+      navigation.navigate("NoResult");
+      setLoading(false);
+    } finally {
+      setLoading(false);
+    }
   };
+
   const handleLoginButton = () => {
     navigation.navigate("Connexion");
   };
 
   return (
     <View style={styles.container}>
+      {loading && <Loading />}
       <CameraView
         style={styles.camera}
         facing={facing}

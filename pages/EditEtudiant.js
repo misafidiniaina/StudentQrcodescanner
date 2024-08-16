@@ -115,8 +115,8 @@ const EditEtudiant = ({ route }) => {
         `${EXPO_PUBLIC_API_BASE_URL}:${EXPO_PUBLIC_API_PORT}${student.profilePicture.path}`
       );
     }
-    if (student.niveau !== "L1") {
-      setListType("normal");
+    if (student.niveau === "M1" || student.niveau === "M2") {
+      setListType("master");
     }
   }, [student]);
 
@@ -384,7 +384,7 @@ const EditEtudiant = ({ route }) => {
       qrCode: student.qrCode,
       profilePicture: student.profilePicture,
     };
-
+    let changePhoto = true;
     const changes = {};
     for (const key in student) {
       if (student[key] !== actualValue[key]) {
@@ -393,30 +393,33 @@ const EditEtudiant = ({ route }) => {
     }
 
     if (imageUri.includes(student.profilePicture.path)) {
-      setChangePhoto(false);
-    } else {
-      setChangePhoto(true);
+      changePhoto = false;
     }
 
+    console.log(imageUri);
     console.log(Object.keys(changes).length);
     console.log(changePhoto);
     try {
       if (Object.keys(changes).length === 0 && !changePhoto) {
         Alert.alert("tsy nisy raha niova");
-      } else {
-        if (Object.keys(changes).length !== 0) {
-          const resutl = await updateEtudiant(student.id, changes);
-        }
-        if (changePhoto) {
-          const response = await updateStudentProfilePicture(
-            student.id,
-            imageUri
-          );
-        }
-        handleCancelButton();
+        return;
       }
-      setLoading(false);
-      handleCancelButton();
+      let serverResult = null;
+      if (Object.keys(changes).length !== 0) {
+        serverResult = await updateEtudiant(student.id, changes);
+      }
+      if (changePhoto) {
+        serverResult = await updateStudentProfilePicture(student.id, imageUri);
+      }
+      console.log("serveru response", serverResult);
+      navigation.navigate("Dashboard", {
+        added: null,
+        updated: serverResult,
+      });
+      navigation.navigate("studentInfoPage", {
+        isEditable: false,
+        student: serverResult,
+      });
     } catch (error) {
       if (error.response) {
         // The request was made and the server responded with a status code
@@ -768,6 +771,30 @@ const EditEtudiant = ({ route }) => {
               Le prenom est obligatoire
             </HelperText>
 
+            <View
+              style={{
+                borderWidth: 1,
+                borderColor: "black",
+                borderRadius: 10,
+                marginTop: 10,
+              }}
+            >
+              <Picker
+                selectedValue={sexe}
+                style={{ borderWidth: 1, borderColor: "black" }}
+                outlineColor={"black"}
+                mode="dropdown"
+                dropdownIconRippleColor={colors.primary}
+                dropdownIconColor={colors.primary}
+                onValueChange={(itemValue) => {
+                  setSexe(itemValue);
+                }}
+              >
+                <Picker.Item label="MALE" value="MALE" />
+                <Picker.Item label="FEMALE" value="FEMALE" />
+              </Picker>
+            </View>
+
             <View style={styles.datePickerContainer}>
               <View style={styles.dateInputContainer}>
                 <TextInput
@@ -858,6 +885,7 @@ const EditEtudiant = ({ route }) => {
                 <Picker
                   selectedValue={selectedValue}
                   style={styles.picker}
+                  mode="dropdown"
                   onValueChange={(itemValue) => {
                     setSelectedValue(itemValue);
                     setNiveau(itemValue);

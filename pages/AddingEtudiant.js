@@ -26,6 +26,8 @@ import { LinearGradient } from "expo-linear-gradient";
 import * as ImagePicker from "expo-image-picker";
 import profilePlaceholder from "../images/profile_placeholder.jpg";
 import Loading from "../components/Loading";
+import { useNavigation } from "@react-navigation/native";
+import Toast from "react-native-toast-message";
 
 const theme = {
   ...DefaultTheme,
@@ -81,6 +83,7 @@ const AddingEtudiant = () => {
   const textInputRef = useRef(null);
   const matriculeRef = useRef(null);
   const nomRef = useRef(null);
+  const navigation = useNavigation();
 
   const [inputBorderColor, setInputBorderColor] = useState("black");
   const [matriculeError, setMatriculeError] = useState({
@@ -346,10 +349,17 @@ const AddingEtudiant = () => {
         imageUri
       );
       setLoading(false);
-      handleCancelButton(); // Reset the form
+      Toast.show({
+        type: "success",
+        text1: "Etudiants ajouté avec succés",
+      });
+      navigation.navigate("Dashboard", { added: result, updated: null });
     } catch (error) {
-      Alert.alert("Error", "Failed to add student. Please try again.");
-      console.error("Error adding student: ", error.response.data);
+      Toast.show({
+        type: 'error',
+        text1: "Echec de l'ajout",
+        text2: "L'Etudiant existe déjà"
+      })
       setLoading(false);
     } finally {
       setLoading(false);
@@ -357,34 +367,7 @@ const AddingEtudiant = () => {
   };
 
   const handleCancelButton = () => {
-    setNom("");
-    setPrenom("");
-    setMatricule("");
-    setDob("");
-    setCin("");
-    setCin_date("");
-    setTel("");
-    setEmail("");
-    setAdresse("");
-    setNiveau("");
-    setParcours("");
-    setAnneeUniv("2023-2024");
-    // matriculeRef.current.focus();
-    setImageUri(null);
-
-    setMatriculeError({ hasError: false, display: "none" });
-    setNomError({ hasError: false, display: "none" });
-    setPrenomError({ hasError: false, display: "none" });
-    setAdresseError({ hasError: false, display: "none" });
-    setNumeroError({ hasError: false, display: "none", message: "" });
-    setEmailError({ hasError: false, display: "none", message: "" });
-    setCinError({ hasError: false, display: "none" });
-    setDobError({
-      hasError: false,
-      display: "none",
-      message: "",
-    });
-    setCinDateError({ hasError: false, display: "none", message: "" });
+    navigation.navigate("Dashboard", { added: null, updated: null });
   };
   const onChangeDob = (event, selectedDate) => {
     const currentDate = selectedDate || dob;
@@ -606,7 +589,9 @@ const AddingEtudiant = () => {
         colors={["#67B99A", "#67B99A", "#67B99A", "#469D89"]}
         style={styles.circleBackground}
       ></LinearGradient>
+      
       <ScrollView style={styles.container}>
+      
         <View style={[styles.contFainer, { marginTop: 40 }]}>
           {imageUri ? (
             <Image
@@ -713,6 +698,30 @@ const AddingEtudiant = () => {
               Le prenom est obligatoire
             </HelperText>
 
+            <View
+              style={{
+                borderWidth: 1,
+                borderColor: "black",
+                borderRadius: 10,
+                marginTop: 10,
+              }}
+            >
+              <Picker
+                selectedValue={sexe}
+                style={{ borderWidth: 1, borderColor: "black" }}
+                outlineColor={"black"}
+                mode="dropdown"
+                dropdownIconRippleColor={colors.primary}
+                dropdownIconColor={colors.primary}
+                onValueChange={(itemValue) => {
+                  setSexe(itemValue);
+                }}
+              >
+                <Picker.Item label="MALE" value="MALE" />
+                <Picker.Item label="FEMALE" value="FEMALE" />
+              </Picker>
+            </View>
+
             <View style={styles.datePickerContainer}>
               <View style={styles.dateInputContainer}>
                 <TextInput
@@ -803,6 +812,7 @@ const AddingEtudiant = () => {
                 <Picker
                   selectedValue={selectedValue}
                   style={styles.picker}
+                  mode="dropdown"
                   onValueChange={(itemValue) => {
                     setSelectedValue(itemValue);
                     setNiveau(itemValue);

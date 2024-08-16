@@ -26,7 +26,7 @@ const LoginScreen = ({ navigation }) => {
       if (data.jwt) {
         await AsyncStorage.setItem("access_token", data.jwt);
         setLoading(false);
-        navigation.navigate("Dashboard");
+        navigation.navigate("Dashboard", {added: null, updated: null});
       } else {
         setEreur("Mot de passe ou Username incorrect");
         setLoading(false);

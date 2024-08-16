@@ -22,7 +22,9 @@ import profilePlaceholder from "../images/profile_placeholder.jpg";
 const EXPO_PUBLIC_API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
 const EXPO_PUBLIC_API_PORT = process.env.EXPO_PUBLIC_API_PORT;
 
-const AdminDashboard = () => {
+const AdminDashboard = ({ route }) => {
+  const { added, updated } = route.params;
+
   const navigation = useNavigation();
   const [students, setStudents] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -34,6 +36,23 @@ const AdminDashboard = () => {
   useEffect(() => {
     getStudents();
   }, []);
+
+  useEffect(() => {
+    if (added) {
+      setStudents((prevStudents) => [...prevStudents, added]);
+    }
+  }, [added]);
+
+  useEffect(() => {
+    if (updated) {
+      // Update logic here, e.g., find the student by ID and update it
+      setStudents((prevStudents) =>
+        prevStudents.map((student) =>
+          student.id === updated.id ? updated : student
+        )
+      );
+    }
+  }, [updated]);
 
   const getStudents = async () => {
     try {
@@ -51,9 +70,9 @@ const AdminDashboard = () => {
   const handleStudentClick = (id) => {
     const student = students.find((etudiant) => etudiant.id === id);
     if (student) {
-      console.log(JSON.stringify(student));
+      console.log(student);
       //console.log(student.qrCode.data)
-      navigation.navigate("Information ", { student });
+      navigation.navigate("studentInfoPage", { isEditable: true, student });
     } else {
       Alert.alert("Error", "Student not found");
     }

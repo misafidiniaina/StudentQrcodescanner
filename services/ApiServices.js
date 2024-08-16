@@ -244,8 +244,7 @@ export const updateStudentProfilePicture = async (id, imageUri, token) => {
         },
       }
     );
-
-    console.log("Profile picture updated successfully:", response.data);
+    return response.data;
   } catch (error) {
     throw error;
   }
