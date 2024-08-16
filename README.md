@@ -1,1 +1,1 @@
-This is a React Native school project that consists of scanning a QR code and displaying its content.
+This is a React Native school project based on QR code technology to manage ENI's students.
