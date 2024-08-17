@@ -19,7 +19,7 @@ const Loading = () => {
         zIndex: 100000,
       }}
     >
-      <BarIndicator color={colors.primary} count={5} />
+      <BarIndicator color={colors.primary} count={5} size={55} />
     </View>
   );
 };

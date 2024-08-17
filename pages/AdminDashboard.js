@@ -70,8 +70,6 @@ const AdminDashboard = ({ route }) => {
   const handleStudentClick = (id) => {
     const student = students.find((etudiant) => etudiant.id === id);
     if (student) {
-      console.log(student);
-      //console.log(student.qrCode.data)
       navigation.navigate("studentInfoPage", { isEditable: true, student });
     } else {
       Alert.alert("Error", "Student not found");

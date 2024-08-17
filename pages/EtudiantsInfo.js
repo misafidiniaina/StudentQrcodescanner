@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   Alert,
   Platform,
+  ToastAndroid,
 } from "react-native";
 import profilePlaceholder from "../images/profile_placeholder.jpg";
 import { SafeAreaProvider } from "react-native-safe-area-context";
@@ -30,6 +31,8 @@ import * as Sharing from "expo-sharing";
 import PDFLib, { PDFDocument, PDFPage } from "react-native-pdf-lib";
 import * as Print from "expo-print";
 import { useNavigation } from "@react-navigation/native";
+import { ActivityIndicator } from "react-native-paper";
+import * as Progress from "react-native-progress";
 
 const EXPO_PUBLIC_API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
 const EXPO_PUBLIC_API_PORT = process.env.EXPO_PUBLIC_API_PORT;
@@ -38,50 +41,67 @@ const EtudiantsInfo = ({ route }) => {
   const { isEditable, student } = route.params;
   const qrCodeRef = useRef(null);
   const navigation = useNavigation();
+  const [loadingPDF, setLoadingPDF] = useState(false);
+  const [loadingQRCode, setLoadingQRCode] = useState(false);
+  const [downloadQRCodeProgress, setDownloadQRCodeProgress] = useState(0);
 
   const hasProfilePicture = student?.profilePicture?.path;
 
   const handleDownload = async () => {
+    setLoadingQRCode(true);
+    setDownloadQRCodeProgress(0);
+
     try {
-      // Request permission to access media library
+      // Step 1: Request permission
       const { status } = await MediaLibrary.requestPermissionsAsync();
       if (status !== "granted") {
         Alert.alert(
-          "Permission required",
-          "We need permission to access your media library."
+          "Demande de permission",
+          "L'application a besoin d'accéder au dossier Media du téléphone."
         );
         return;
       }
+      setDownloadQRCodeProgress(20); // Update to 20% after permission is granted
 
-      // Generate QR Code Data URL
+      // Step 2: Generate QR Code Data URL
       const dataURL = await new Promise((resolve) => {
         qrCodeRef.current?.toDataURL(resolve);
       });
+      setDownloadQRCodeProgress(40); // Update to 40% after QR code generation
 
-      // Convert Data URL to base64
+      // Step 3: Convert Data URL to base64
       const base64Data = dataURL.replace(/^data:image\/png;base64,/, "");
 
-      // Manipulate Image (add padding)
+      // Step 4: Manipulate Image (add padding)
       const { uri: manipulatedUri } = await ImageManipulator.manipulateAsync(
         `data:image/png;base64,${base64Data}`,
         [{ resize: { width: 350, height: 350 } }], // Adjust dimensions for padding
         { format: ImageManipulator.SaveFormat.PNG }
       );
+      setDownloadQRCodeProgress(60); // Update to 60% after image manipulation
 
-      // Save Image to FileSystem
+      // Step 5: Save Image to FileSystem
       const fileName = `${student.matricule}  ${student.niveau} ${student.parcours} ${student.nom} ${student.prenom}.png`;
       const fileUri = `${FileSystem.documentDirectory}${fileName}`;
       await FileSystem.writeAsStringAsync(fileUri, base64Data, {
         encoding: FileSystem.EncodingType.Base64,
       });
+      setDownloadQRCodeProgress(80); // Update to 80% after saving to the file system
 
-      // Save to media library
+      // Step 6: Save to media library
       const asset = await MediaLibrary.createAssetAsync(fileUri);
       await MediaLibrary.createAlbumAsync("Qrcode", asset, false);
+      setDownloadQRCodeProgress(100); // Update to 100% after saving to the media library
 
-      Alert.alert("QR Code saved!", `Saved to gallery: ${fileUri}`);
+      ToastAndroid.show(
+        "QR Code enregistré dans la galerie!",
+        ToastAndroid.SHORT
+      );
     } catch (error) {
-      Alert.alert("Pas de code QR", "Cet étudiant ne possède pas de code QR");
+      ToastAndroid.show("Erreur de l'enregistrement!", ToastAndroid.SHORT);
+    } finally {
+      setLoadingQRCode(false);
+      setDownloadQRCodeProgress(0); // Reset progress
     }
   };
 
@@ -105,12 +125,15 @@ const EtudiantsInfo = ({ route }) => {
       // Share the image
       await Sharing.shareAsync(fileUri);
     } catch (error) {
-      console.error(error);
-      Alert.alert("Error", "An error occurred while sharing the QR code.");
+      ToastAndroid.show(
+        "Une erreur est survenue, Veuillez reessayer",
+        ToastAndroid.SHORT
+      );
     }
   };
 
   const createPDF = async () => {
+    setLoadingPDF(true);
     try {
       // Define the PDF file name
       const fileName = `${student.matricule}_${student.niveau}_${student.parcours}_${student.nom}_${student.prenom}.pdf`;
@@ -145,8 +168,8 @@ const EtudiantsInfo = ({ route }) => {
       const { status } = await MediaLibrary.requestPermissionsAsync();
       if (status !== "granted") {
         Alert.alert(
-          "Permission required",
-          "We need permission to access your media library."
+          "Demande de permission",
+          "L'application a besoin d'accéder au dossier du téléphone."
         );
         return;
       }
@@ -154,10 +177,20 @@ const EtudiantsInfo = ({ route }) => {
       const asset = await MediaLibrary.createAssetAsync(uri);
       await MediaLibrary.createAlbumAsync("PDFs", asset, false);
 
-      Alert.alert("PDF saved!", `Saved to gallery: ${uri}`);
-    } catch (error) {
-      console.error("Error creating PDF:", error);
-      Alert.alert("Error", "An error occurred while creating the PDF.");
+      setLoadingPDF(false);
+
+      ToastAndroid.show(
+        "Fichier enregistrer dans le repértoires PDFs",
+        ToastAndroid.SHORT
+      );
+    } catch {
+      ToastAndroid.show(
+        "Erreur de l'enregistrement du fichier. Veuillez reessayer",
+        ToastAndroid.SHORT
+      );
+      setLoadingPDF(false);
+    } finally {
+      setLoadingPDF(false);
     }
   };
 
@@ -238,12 +271,23 @@ const EtudiantsInfo = ({ route }) => {
                   onPress={handleShare}
                 />
               </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.qrCodeAction}
-                onPress={handleDownload}
-              >
-                <Icon name="download" size={25} color={colors.primary} />
-              </TouchableOpacity>
+              {loadingQRCode ? (
+                <Progress.Circle
+                  size={43}
+                  indeterminate={true}
+                  progress={downloadQRCodeProgress/100}
+                  borderWidth={2}
+                  borderColor={colors.primary}
+                  showsText={true}
+                />
+              ) : (
+                <TouchableOpacity
+                  style={styles.qrCodeAction}
+                  onPress={handleDownload}
+                >
+                  <Icon name="download" size={25} color={colors.primary} />
+                </TouchableOpacity>
+              )}
             </View>
           </View>
           <View style={styles.section}>
@@ -282,8 +326,14 @@ const EtudiantsInfo = ({ route }) => {
           </View>
           <View style={styles.buttonContainer}>
             <TouchableOpacity style={styles.button} onPress={createPDF}>
-              <FontAwesome name="download" size={20} color={"white"} />
-              <Text style={styles.buttonText}>Télécharger (Pdf)</Text>
+              {!loadingPDF ? (
+                <>
+                  <FontAwesome name="download" size={20} color={"white"} />
+                  <Text style={styles.buttonText}>Télécharger (Pdf)</Text>
+                </>
+              ) : (
+                <ActivityIndicator color="white" />
+              )}
             </TouchableOpacity>
           </View>
         </View>

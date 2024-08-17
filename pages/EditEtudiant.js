@@ -37,6 +37,7 @@ import * as ImagePicker from "expo-image-picker";
 import profilePlaceholder from "../images/profile_placeholder.jpg";
 import Loading from "../components/Loading";
 import { useNavigation } from "@react-navigation/native";
+import Toast from "react-native-toast-message";
 
 const EXPO_PUBLIC_API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
 const EXPO_PUBLIC_API_PORT = process.env.EXPO_PUBLIC_API_PORT;
@@ -171,13 +172,13 @@ const EditEtudiant = ({ route }) => {
   const lisenceOptions = [
     { label: "IG", value: "IG" },
     { label: "GB", value: "GB" },
-    { label: "SR", value: "SR" },
+    { label: "ASR", value: "ASR" },
   ];
 
   const masterOptions = [
     { label: "IG", value: "IG" },
     { label: "GB", value: "GB" },
-    { label: "SR", value: "SR" },
+    { label: "ASR", value: "ASR" },
     { label: "GID", value: "GID" },
     { label: "OCC", value: "OCC" },
   ];
@@ -359,8 +360,6 @@ const EditEtudiant = ({ route }) => {
           bdWidth: 2,
         });
       }
-      console.log("ato ndray e");
-      console.log(formattedDateCin);
       return;
     }
 
@@ -395,13 +394,19 @@ const EditEtudiant = ({ route }) => {
     if (imageUri.includes(student.profilePicture.path)) {
       changePhoto = false;
     }
-
-    console.log(imageUri);
-    console.log(Object.keys(changes).length);
-    console.log(changePhoto);
     try {
       if (Object.keys(changes).length === 0 && !changePhoto) {
-        Alert.alert("tsy nisy raha niova");
+        Toast.show({
+          type: "info",
+          text1: "Modification réussie",
+          text2: "Aucune information n'a été modifiée",
+          text1Style: { fontSize: 17, marginVertical: 5 },
+          text2Style: { fontSize: 12, marginVertical: 7 },
+        });
+        navigation.navigate("studentInfoPage", {
+          isEditable: true,
+          student: student,
+        });
         return;
       }
       let serverResult = null;
@@ -411,30 +416,34 @@ const EditEtudiant = ({ route }) => {
       if (changePhoto) {
         serverResult = await updateStudentProfilePicture(student.id, imageUri);
       }
-      console.log("serveru response", serverResult);
+      Toast.show({
+        type: "success",
+        text1: "Modification réussie",
+        text2: "La modification est bien enregistrée",
+        text1Style: { fontSize: 17, marginVertical: 5 },
+        text2Style: { fontSize: 12, marginVertical: 7 },
+      });
       navigation.navigate("Dashboard", {
         added: null,
         updated: serverResult,
       });
       navigation.navigate("studentInfoPage", {
-        isEditable: false,
+        isEditable: true,
         student: serverResult,
       });
     } catch (error) {
-      if (error.response) {
-        // The request was made and the server responded with a status code
-        // that falls out of the range of 2xx
-        console.log("Error Data:", error.response.data);
-        console.log("Error Status:", error.response.status);
-        console.log("Error Headers:", error.response.headers);
-      } else if (error.request) {
-        // The request was made but no response was received
-        console.log("Error Request:", error.request);
-      } else {
-        // Something happened in setting up the request that triggered an Error
-        console.log("Error Message:", error.message);
-      }
-      console.log("Error Config:", error.config);
+      Toast.show({
+        type: "error",
+        text1: "Modification echoué",
+        text2: "Certains Information correspond déjà à d'autre étudiants",
+        text1Style: { fontSize: 17, marginVertical: 5 },
+        text2Style: { fontSize: 12, marginVertical: 7 },
+      });
+      setLoading(false);
+      navigation.navigate("studentInfoPage", {
+        isEditable: true,
+        student: student,
+      });
     } finally {
       setLoading(false);
     }
@@ -524,13 +533,13 @@ const EditEtudiant = ({ route }) => {
       setNumeroError({
         hasError: true,
         display: "block",
-        message: "Le numéro de téléphone doit contenir 10 chiffres",
+        message: "Veuillez entrer un numéro de 10 chiffres",
       });
     } else if (formattedText == "") {
       setNumeroError({
         hasError: true,
         display: "block",
-        message: "Le numéro de téléphone est obligatoire",
+        message: "Veuillez entrer le numéro de téléphone",
       });
     }
     setTel(formattedText);
@@ -565,7 +574,7 @@ const EditEtudiant = ({ route }) => {
       setCinError({
         hasError: true,
         display: "block",
-        message: "Veuillez entrer une numero CIN",
+        message: "Veuillez entrer le numero CIN",
       });
       setCinDateError({ hasError: false, display: "none", message: "" });
     } else if (
@@ -606,13 +615,13 @@ const EditEtudiant = ({ route }) => {
         setCinError({
           hasError: false,
           display: "none",
-          message: "Veuillez entrer une",
+          message: "",
         });
       } else {
         setCinError({
           hasError: true,
           display: "block",
-          message: "Veuillez entrer une",
+          message: "Veuillez entrer le numero CIN",
         });
       }
     }
@@ -629,21 +638,14 @@ const EditEtudiant = ({ route }) => {
       if (!allowedChars.test(email.replace(/@/, ""))) {
         return "L'email contient des caractères non autorisés.";
       } else {
-        // Vérifier si l'email contient le symbole '@'
         const atCount = (email.match(/@/g) || []).length;
         if (atCount !== 1) {
           return "L'email doit contenir un symbole '@'.";
         }
-
-        // Séparer la partie locale et le domaine de l'email
         const [localPart, domainPart] = email.split("@");
-
-        // Vérifier si le domaine contient un point '.'
         if (!domainPart.includes(".")) {
           return "Le domaine doit contenir un point '.' pour être valide.";
         }
-
-        // Vérifier si le domaine commence ou termine par un point '.'
         if (domainPart.startsWith(".")) {
           return "Le domaine ne doit pas commencer par un point '.'";
         }
@@ -713,7 +715,7 @@ const EditEtudiant = ({ route }) => {
               padding="normal"
               style={{ display: matriculeError.display }}
             >
-              Le numero matricule est obligatoire
+              Veuillez entrer un numero matricule
             </HelperText>
 
             <View style={styles.anarana}>
@@ -741,7 +743,7 @@ const EditEtudiant = ({ route }) => {
                 padding="normal"
                 style={{ display: nomError.display }}
               >
-                Le nom est obligatoire
+                Veuillez entrer un nom
               </HelperText>
 
               <TextInput
@@ -768,7 +770,7 @@ const EditEtudiant = ({ route }) => {
               padding="normal"
               style={{ display: prenomError.display }}
             >
-              Le prenom est obligatoire
+              Veuillez entrer un prenom
             </HelperText>
 
             <View
@@ -1067,7 +1069,7 @@ const EditEtudiant = ({ route }) => {
                         ...dobError,
                         hasError: false,
                         display: "none",
-                        message: "La date de naissance est obligatoire",
+                        message: "",
                       });
                       setCinError({
                         ...cinError,
@@ -1098,10 +1100,15 @@ const EditEtudiant = ({ route }) => {
                     } else {
                       setCinDateError({
                         ...dobError,
+                        hasError: false,
+                        display: "none",
+                        message: "",
+                      });
+                      setCinError({
+                        ...cinError,
                         hasError: true,
                         display: "block",
-                        message:
-                          "Laisser ce champ vide s'il n'y a pas de carte",
+                        message: "Veuillez entrer le numero CIN",
                       });
                     }
                   }}

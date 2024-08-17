@@ -137,13 +137,13 @@ const AddingEtudiant = () => {
   const lisenceOptions = [
     { label: "IG", value: "IG" },
     { label: "GB", value: "GB" },
-    { label: "SR", value: "SR" },
+    { label: "ASR", value: "ASR" },
   ];
 
   const masterOptions = [
     { label: "IG", value: "IG" },
     { label: "GB", value: "GB" },
-    { label: "SR", value: "SR" },
+    { label: "ASR", value: "ASR" },
     { label: "GID", value: "GID" },
     { label: "OCC", value: "OCC" },
   ];
@@ -326,7 +326,6 @@ const AddingEtudiant = () => {
           bdWidth: 2,
         });
       }
-      console.log(niveau);
       return;
     }
 
@@ -351,15 +350,20 @@ const AddingEtudiant = () => {
       setLoading(false);
       Toast.show({
         type: "success",
-        text1: "Etudiants ajouté avec succés",
+        text1: "Ajout réussie",
+        text2: "L'ajout de l'étudiant est réussie",
+        text1Style: { fontSize: 17, marginVertical: 5 },
+        text2Style: { fontSize: 12, marginVertical: 7 },
       });
       navigation.navigate("Dashboard", { added: result, updated: null });
     } catch (error) {
       Toast.show({
-        type: 'error',
-        text1: "Echec de l'ajout",
-        text2: "L'Etudiant existe déjà"
-      })
+        type: "error",
+        text1: "Ajout echoué",
+        text2: "L'étudiant existe déjà",
+        text1Style: { fontSize: 17, marginVertical: 5 },
+        text2Style: { fontSize: 12, marginVertical: 7 },
+      });
       setLoading(false);
     } finally {
       setLoading(false);
@@ -449,13 +453,13 @@ const AddingEtudiant = () => {
       setNumeroError({
         hasError: true,
         display: "block",
-        message: "Le numéro de téléphone doit contenir 10 chiffres",
+        message: "Veuillez entrer un numéro de 10 chiffres",
       });
     } else if (formattedText == "") {
       setNumeroError({
         hasError: true,
         display: "block",
-        message: "Le numéro de téléphone est obligatoire",
+        message: "Veuillez entrer le numéro de téléphone",
       });
     }
     setTel(formattedText);
@@ -490,7 +494,7 @@ const AddingEtudiant = () => {
       setCinError({
         hasError: true,
         display: "block",
-        message: "Veuillez entrer une numero CIN",
+        message: "Veuillez entrer le numero CIN",
       });
       setCinDateError({ hasError: false, display: "none", message: "" });
     } else if (
@@ -531,13 +535,13 @@ const AddingEtudiant = () => {
         setCinError({
           hasError: false,
           display: "none",
-          message: "Veuillez entrer une",
+          message: "",
         });
       } else {
         setCinError({
           hasError: true,
           display: "block",
-          message: "Veuillez entrer une",
+          message: "Veuillez entrer le numero CIN",
         });
       }
     }
@@ -589,9 +593,7 @@ const AddingEtudiant = () => {
         colors={["#67B99A", "#67B99A", "#67B99A", "#469D89"]}
         style={styles.circleBackground}
       ></LinearGradient>
-      
       <ScrollView style={styles.container}>
-      
         <View style={[styles.contFainer, { marginTop: 40 }]}>
           {imageUri ? (
             <Image
@@ -640,7 +642,7 @@ const AddingEtudiant = () => {
               padding="normal"
               style={{ display: matriculeError.display }}
             >
-              Le numero matricule est obligatoire
+              Veuillez entrer un numero matricule
             </HelperText>
 
             <View style={styles.anarana}>
@@ -668,7 +670,7 @@ const AddingEtudiant = () => {
                 padding="normal"
                 style={{ display: nomError.display }}
               >
-                Le nom est obligatoire
+                Veuillez entrer un nom
               </HelperText>
 
               <TextInput
@@ -695,7 +697,7 @@ const AddingEtudiant = () => {
               padding="normal"
               style={{ display: prenomError.display }}
             >
-              Le prenom est obligatoire
+              Veuillez entrer un prenom
             </HelperText>
 
             <View
@@ -1025,10 +1027,15 @@ const AddingEtudiant = () => {
                     } else {
                       setCinDateError({
                         ...dobError,
+                        hasError: false,
+                        display: "none",
+                        message: "",
+                      });
+                      setCinError({
+                        ...cinError,
                         hasError: true,
                         display: "block",
-                        message:
-                          "Laisser ce champ vide s'il n'y a pas de carte",
+                        message: "Veuillez entrer le numero CIN",
                       });
                     }
                   }}

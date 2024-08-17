@@ -17,8 +17,6 @@ const Result = ({ route }) => {
         const result = await fetchData("9abbfcca-fee8-4307-be6b-baa5a4022d1a");
         if (result) {
           setDonnees(result);
-          console.log(result);
-          // Navigate with fetched result instead of static studentData if needed
           navigation.navigate("studentInfoPage", { route: result });
         } else {
           Alert.alert("No data", "No data returned from the server.");
