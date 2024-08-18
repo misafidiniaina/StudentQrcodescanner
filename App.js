@@ -1,6 +1,7 @@
+import React, { useEffect, useState } from "react";
+import { StyleSheet, View, Text, TouchableOpacity } from "react-native";
+import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
-import React, { useState } from "react";
-import { StyleSheet, TouchableOpacity } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { SafeAreaProvider } from "react-native-safe-area-context";
@@ -9,6 +10,7 @@ import Entypo from "react-native-vector-icons/Entypo";
 import Feather from "react-native-vector-icons/Feather";
 import Toast from "react-native-toast-message";
 
+// Import your screens
 import Scann from "./pages/Scann";
 import Result from "./pages/Result";
 import Login from "./pages/Login";
@@ -22,9 +24,34 @@ const Stack = createStackNavigator();
 
 export default function App() {
   const [visible, setVisible] = useState(false);
+  const [isReady, setIsReady] = useState(false); // New state to control splash screen
+ 
+
+  useEffect(() => {
+    async function prepare() {
+      try {
+        // Prevent the splash screen from hiding until we are ready
+        await SplashScreen.preventAutoHideAsync();
+
+        // Simulate an async task, like fetching data or initializing
+        await new Promise((resolve) => setTimeout(resolve, 2000)); // Example delay
+
+        // Mark app as ready
+        setIsReady(true);
+      } catch (e) {
+        console.warn(e);
+      }
+    }
+    prepare();
+  }, []);
+
+  useEffect(() => {
+    if (isReady) {
+      SplashScreen.hideAsync(); // Hide splash screen when ready
+    }
+  }, [isReady]); // Dependency array with `isReady`
 
   const openMenu = () => setVisible(true);
-
   const closeMenu = () => setVisible(false);
 
   return (
@@ -53,9 +80,7 @@ export default function App() {
             <Stack.Screen
               name="Dashboard"
               component={AdminDashboard}
-              options={{
-                headerShown: false,
-              }}
+              options={{ headerShown: false }}
             />
             <Stack.Screen
               name="Ajout Étudiant"
@@ -73,10 +98,8 @@ export default function App() {
               name="studentInfoPage"
               component={EtudiantsInfo}
               options={({ route }) => {
-                // Extract params from route
                 const { isEditable, student } = route.params;
 
-                // Return the options object
                 return {
                   title: "Information",
                   headerTitleAlign: "center",
@@ -113,7 +136,7 @@ export default function App() {
                           closeMenu();
                           console.log(student.id);
                         }}
-                        disabled={!isEditable} // Control disabled state based on isEditable
+                        disabled={!isEditable}
                         title="Supprimer l'étudiant"
                         leadingIcon={({ size, color }) => (
                           <Feather
@@ -145,9 +168,7 @@ export default function App() {
             <Stack.Screen
               name="NoResult"
               component={NoResult}
-              options={{
-                headerShown: false,
-              }}
+              options={{ headerShown: false }}
             />
           </Stack.Navigator>
         </NavigationContainer>

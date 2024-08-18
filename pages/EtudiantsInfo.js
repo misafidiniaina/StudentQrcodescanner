@@ -241,12 +241,16 @@ const EtudiantsInfo = ({ route }) => {
           ) : (
             <Image source={profilePlaceholder} style={styles.image} />
           )}
-          <Text>{student.matricule}</Text>
-          <Text>{student.nom}</Text>
-          <Text>{student.prenom}</Text>
-          <Text>
-            {student.niveau} {student.parcours}
-          </Text>
+          <View style={styles.nameSection}>
+            <Text style={styles.nom}>{student.nom}</Text>
+            <Text style={styles.prenom}>{student.prenom}</Text>
+          </View>
+          <View style={styles.classSection}>
+            <Text style={styles.matricule}>N°: {student.matricule} |</Text>
+            <Text style={styles.class}>
+              {student.niveau} {student.parcours}
+            </Text>
+          </View>
         </View>
         <View style={styles.haveBackground}>
           <View style={styles.qrcodeSection}>
@@ -275,7 +279,7 @@ const EtudiantsInfo = ({ route }) => {
                 <Progress.Circle
                   size={43}
                   indeterminate={true}
-                  progress={downloadQRCodeProgress/100}
+                  progress={downloadQRCodeProgress / 100}
                   borderWidth={2}
                   borderColor={colors.primary}
                   showsText={true}
@@ -292,23 +296,36 @@ const EtudiantsInfo = ({ route }) => {
           </View>
           <View style={styles.section}>
             <View style={styles.sectionLine}>
-              <FontAwesome name="birthday-cake" size={17} />
+              <View style={styles.left}>
+                <FontAwesome name="birthday-cake" size={15} />
+              </View>
               <Text style={styles.info}>{printableDate(student.dob)}</Text>
+            </View>
+            <View style={[styles.sectionLine, {marginTop: 5}]}>
+              <View style={styles.left}>
+                <FontAwesome name="intersex" size={15} />
+              </View>
+              <Text style={styles.info}>{student.sexe}</Text>
             </View>
           </View>
           <View style={styles.section}>
             <View style={styles.sectionLine}>
-              <Entypo name="location-pin" size={20} />
+              <View style={styles.left}>
+                <Entypo name="location-pin" size={20} />
+              </View>
               <Text style={styles.info}>{student.adresse}</Text>
             </View>
             <View style={styles.sectionLine}>
-              <FontAwesome name="vcard" size={15} />
+              <View style={styles.left}>
+                <FontAwesome name="vcard" size={15} />
+              </View>
               <Text style={styles.info}>
                 {student.cin ? formatCin(student.cin) : "Encore Mineur"}
               </Text>
             </View>
             {student.cin_date && (
               <Text style={styles.info}>
+                <View style={styles.left}></View>
                 <Text style={styles.faitLe}>Fait le </Text>
                 {printableDate(student.cin_date)}
               </Text>
@@ -316,11 +333,15 @@ const EtudiantsInfo = ({ route }) => {
           </View>
           <View style={styles.section}>
             <View style={styles.sectionLine}>
-              <FontAwesome name="phone" size={15} />
+              <View style={styles.left}>
+                <FontAwesome name="phone" size={15} />
+              </View>
               <Text style={styles.info}>{formatPhoneNumber(student.tel)}</Text>
             </View>
             <View style={styles.sectionLine}>
-              <Entypo name="mail" size={17} />
+              <View style={styles.left}>
+                <Entypo name="mail" size={17} />
+              </View>
               <Text style={styles.info}>{student.email}</Text>
             </View>
           </View>
@@ -375,6 +396,11 @@ const styles = StyleSheet.create({
     paddingVertical: 40,
     marginHorizontal: 35,
   },
+  left: {
+    justifyContent: "center",
+    alignItems: "center",
+    width: 20,
+  },
   info: {
     marginLeft: 25,
     color: "gray",
@@ -388,9 +414,31 @@ const styles = StyleSheet.create({
     top: 20,
     right: 20,
   },
-  nom: {},
-  class: {},
-  matricule: {},
+  nameSection: {
+    marginVertical: 10,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  classSection: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  nom: {
+    fontWeight: "bold",
+    fontSize: 20,
+  },
+  prenom: {
+    fontWeight: "bold",
+    fontSize: 20,
+  },
+  class: {
+    fontSize: 17,
+    marginLeft: 5,
+  },
+  matricule: {
+    fontSize: 17,
+  },
   section: {
     marginVertical: 15,
     paddingVertical: 27,

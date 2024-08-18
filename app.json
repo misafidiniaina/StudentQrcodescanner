@@ -1,8 +1,9 @@
 {
   "expo": {
-    "name": "Qrcodescanner",
-    "slug": "Qrcodescanner",
+    "name": "StudentScan",
+    "slug": "StudentScan",
     "version": "1.0.0",
+    "icon": "./assets/images/icon.png",
     "plugins": [
       [
         "expo-image-picker",
@@ -10,7 +11,16 @@
           "photosPermission": "The app accesses your photos to let you share them with your friends."
         }
       ]
-    ]
-
+    ],
+    "splash": {
+      "image": "./assets/images/splash.png",
+      "resizeMode": "cover",
+      "backgroundColor": "#ffffff"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "81489614-3163-4785-a291-cc806c3a83b0"
+      }
+    }
   }
 }

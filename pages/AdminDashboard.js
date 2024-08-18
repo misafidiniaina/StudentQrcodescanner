@@ -9,10 +9,13 @@ import {
   TouchableOpacity,
   Alert,
   Image,
+  ToastAndroid,
+  ActivityIndicator,
 } from "react-native";
 import { deleteEtudiant, getEtudiants } from "../services/ApiServices";
 import Loading from "../components/Loading";
 import Icon from "react-native-vector-icons/Ionicons";
+import AntDesign from "react-native-vector-icons/AntDesign";
 import { useNavigation } from "@react-navigation/native";
 import { Swipeable, RectButton } from "react-native-gesture-handler";
 import { LinearGradient } from "expo-linear-gradient";
@@ -32,6 +35,7 @@ const AdminDashboard = ({ route }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [openSwipeableId, setOpenSwipeableId] = useState(null);
   const swipeableRefs = useRef({});
+  const [loadingEdit, setLoadingEdit] = useState(false);
 
   useEffect(() => {
     getStudents();
@@ -61,7 +65,10 @@ const AdminDashboard = ({ route }) => {
       setEtudiantNumber(result.length);
       setLoading(false);
     } catch (error) {
-      console.error("Error fetching data:", error);
+      ToastAndroid.show(
+        "Aucune connexion, Veuillez reessayer",
+        ToastAndroid.SHORT
+      );
     } finally {
       setLoading(false);
     }
@@ -72,19 +79,61 @@ const AdminDashboard = ({ route }) => {
     if (student) {
       navigation.navigate("studentInfoPage", { isEditable: true, student });
     } else {
-      Alert.alert("Error", "Student not found");
+      ToastAndroid.show(
+        "Une erreur est survenue, Veuillez reessayer",
+        ToastAndroid.SHORT
+      );
     }
   };
 
+  const showConfirmationDialog = (id) => {
+    Alert.alert(
+      "Confirmer la suppression",
+      "Voulez-vous vraiment supprimer cet étudiant ?",
+      [
+        {
+          text: "Annuler",
+          style: "cancel",
+        },
+        {
+          text: "Supprimer",
+          onPress: () => handleDelete(id),
+          style: "destructive",
+        },
+      ],
+      { cancelable: true }
+    );
+  };
   const handleDelete = async (id) => {
-    Alert.alert(id.toString());
     try {
-      const result = await deleteEtudiant(id);
-      //message management
-    } catch (error) {
-      console.error("error:", error);
+      await deleteEtudiant(id);
+      setStudents((prevStudents) =>
+        prevStudents.filter((student) => student.id !== id)
+      );
+      ToastAndroid.show("L'étudiant(e) est supprimé(e)", ToastAndroid.SHORT);
+    } catch {
+      ToastAndroid.show(
+        "Une erreur est survenue, Veuillez reessayer",
+        ToastAndroid.SHORT
+      );
     }
-    setStudents(students.filter((student) => student.id !== id));
+  };
+  const handleEdit = async (id) => {
+    setLoadingEdit(true); // Start loading
+
+    try {
+      const student = students.find((etudiant) => etudiant.id === id);
+      if (student) {
+        navigation.navigate("Editer Étudiant", { student });
+      } else {
+        ToastAndroid.show(
+          "Une erreur est survenue, Veuillez reessayer",
+          ToastAndroid.SHORT
+        );
+      }
+    } finally {
+      setLoadingEdit(false); // Stop loading
+    }
   };
 
   const handleSearch = (query) => {
@@ -120,19 +169,32 @@ const AdminDashboard = ({ route }) => {
 
   const renderRightActions = (id) => (
     <View style={styles.actionsContainer}>
-      <RectButton style={styles.editButton} onPress={() => handleArchive(id)}>
-        <Text style={styles.editButtonText}>Edit</Text>
+      <RectButton
+        style={styles.deleteButton}
+        onPress={() => showConfirmationDialog(id)}
+      >
+        <Text style={styles.deleteButtonText}>
+          <AntDesign name="delete" size={20} color={"white"} />
+        </Text>
       </RectButton>
-      <RectButton style={styles.deleteButton} onPress={() => handleDelete(id)}>
-        <Text style={styles.deleteButtonText}>Delete</Text>
-      </RectButton>
+      {loadingEdit ? (
+        <RectButton style={styles.editButton} onPress={() => handleEdit(id)}>
+          <ActivityIndicator color="white" />
+        </RectButton>
+      ) : (
+        <RectButton style={styles.editButton} onPress={() => handleEdit(id)}>
+          <Text style={styles.editButtonText}>
+            <AntDesign name="edit" size={20} />
+          </Text>
+        </RectButton>
+      )}
     </View>
   );
 
   const renderItem = ({ item }) => (
     <Swipeable
       ref={(ref) => (swipeableRefs.current[item.id] = ref)}
-      friction={3}
+      friction={4}
       overshootRight={true}
       renderRightActions={() => renderRightActions(item.id)}
       onSwipeableOpenStartDrag={() => onSwipeableWillOpen(item.id)}
@@ -168,6 +230,13 @@ const AdminDashboard = ({ route }) => {
             >
               {item.nom} {item.prenom}
             </Text>
+            <View style={styles.studentInfo}>
+              <View style={styles.class}>
+                <Text style={styles.classText}>{item.niveau}</Text>
+                <Text style={styles.classText}> {item.parcours}</Text>
+              </View>
+              <Text style={styles.matricule}>{item.matricule}</Text>
+            </View>
           </View>
         </View>
       </TouchableOpacity>
@@ -316,22 +385,24 @@ const styles = StyleSheet.create({
     fontSize: 15,
   },
   matricule: {
-    fontWeight: "bold",
     fontSize: 13,
     color: "#5d5d5d",
+    marginHorizontal: 7,
   },
   class: {
     flexDirection: "row",
-    backgroundColor: "whitesmoke",
     justifyContent: "center",
-    paddingVertical: 3,
     borderRadius: 20,
-    marginVertical: 3,
+  },
+  classText: {
+    fontSize: 13,
+    color: "#5d5d5d",
   },
   studentInfo: {
-    marginHorizontal: 6,
     fontSize: 12,
-    color: "gray",
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 2,
   },
   addEtudiant: {
     position: "absolute",
@@ -362,29 +433,30 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
+    paddingBottom: 10,
+    paddingHorizontal: 10,
+    marginLeft: -15,
+    marginRight: 5,
   },
   editButton: {
-    backgroundColor: "orange",
+    backgroundColor: "#4F6867",
     justifyContent: "center",
     alignItems: "center",
-    width: 70,
-    height: "85%",
+    width: 60,
+    aspectRatio: 1,
     borderRadius: 10,
-    marginRight: 10,
-    paddingHorizontal: 10,
   },
   editButtonText: {
     color: "white",
   },
   deleteButton: {
-    backgroundColor: "red",
+    backgroundColor: "#DC6262",
     justifyContent: "center",
     alignItems: "center",
-    width: 70,
-    height: "85%",
+    width: 60,
+    aspectRatio: 1,
     borderRadius: 10,
     marginRight: 10,
-    paddingHorizontal: 10,
   },
   deleteButtonText: {
     color: "white",
