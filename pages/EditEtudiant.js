@@ -31,6 +31,7 @@ import {
   formatPhoneNumber,
   removeSpaces,
   transformDateToISO,
+  capitalizeFirstLetter,
 } from "../utils/Utils";
 import { LinearGradient } from "expo-linear-gradient";
 import * as ImagePicker from "expo-image-picker";
@@ -367,8 +368,8 @@ const EditEtudiant = ({ route }) => {
 
     const actualValue = {
       id: student.id,
-      nom: nom,
-      prenom: prenom,
+      nom: capitalizeFirstLetter(nom),
+      prenom: capitalizeFirstLetter(prenom),
       dob: formattedDob,
       cin: formattedCin,
       cin_date: formattedDateCin,
@@ -668,17 +669,20 @@ const EditEtudiant = ({ route }) => {
       ></LinearGradient>
       <ScrollView style={styles.container}>
         <View style={[styles.contFainer, { marginTop: 40 }]}>
-          {imageUri ? (
-            <Image
-              source={{ uri: imageUri }}
-              style={[styles.image, styles.shadow]}
-            />
-          ) : (
-            <Image
-              source={profilePlaceholder}
-              style={[styles.image, styles.shadow]}
-            />
-          )}
+          <View style={styles.imageContainer}>
+            {imageUri ? (
+              <Image
+                source={{ uri: imageUri }}
+                style={[styles.image, styles.shadow]}
+              />
+            ) : (
+              <Image
+                source={profilePlaceholder}
+                style={[styles.image, styles.shadow]}
+              />
+            )}
+          </View>
+
           <TouchableOpacity
             onPress={openImagePicker}
             activeOpacity={0.7}
@@ -853,7 +857,7 @@ const EditEtudiant = ({ route }) => {
               <DateTimePicker
                 value={dob}
                 mode="date"
-                display="default"
+                display="spinner"
                 onChange={onChangeDob}
               />
             )}
@@ -1141,7 +1145,7 @@ const EditEtudiant = ({ route }) => {
               <DateTimePicker
                 value={cin_date}
                 mode="date"
-                display="default"
+                display="spinner"
                 onChange={onChangeCinDate}
               />
             )}
@@ -1217,6 +1221,21 @@ const styles = StyleSheet.create({
   },
   namewidth: {
     width: "100%",
+  },
+  imageContainer: {
+    backgroundColor: "white",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 1,
+    borderRadius: 200,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 10,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 10,
+    elevation: 10,
   },
   image: {
     width: 170,

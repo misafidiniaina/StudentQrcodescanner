@@ -61,3 +61,15 @@ export const formatCin = (number) => {
   const pattern = /(\d{3})(\d{3})(\d{3})(\d{3})/;
   return cleaned.replace(pattern, "$1 $2 $3 $4");
 };
+
+
+
+export const capitalizeFirstLetter = (str) => {
+  if (!str) return ''; // Return an empty string if the input is null or undefined
+  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+};
+
+export const makeUpperCase = (str) => {
+  if (!str) return ''; // Return an empty string if the input is null or undefined
+  return str.toUpperCase();
+};

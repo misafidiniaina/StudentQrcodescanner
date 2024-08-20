@@ -21,13 +21,14 @@ import {
 
 import Icon from "react-native-vector-icons/MaterialIcons";
 import { Picker } from "@react-native-picker/picker";
-import { colors, removeSpaces, transformDateToISO } from "../utils/Utils";
+import { capitalizeFirstLetter, colors, removeSpaces, transformDateToISO } from "../utils/Utils";
 import { LinearGradient } from "expo-linear-gradient";
 import * as ImagePicker from "expo-image-picker";
 import profilePlaceholder from "../images/profile_placeholder.jpg";
 import Loading from "../components/Loading";
 import { useNavigation } from "@react-navigation/native";
 import Toast from "react-native-toast-message";
+import Svg, { Path } from "react-native-svg";
 
 const theme = {
   ...DefaultTheme,
@@ -241,7 +242,8 @@ const AddingEtudiant = () => {
       formattedTel.length < 10 ||
       !adresse ||
       (cin && cin.length < 15) ||
-      !parcours
+      !parcours ||
+      !imageUri
     ) {
       if (!matricule) {
         setMatriculeError({
@@ -326,14 +328,17 @@ const AddingEtudiant = () => {
           bdWidth: 2,
         });
       }
+      if (!imageUri) {
+        Alert.alert("Photo de profile vide", "Veuillez entrer un photo");
+      }
       return;
     }
 
     setLoading(true);
     try {
       const result = await addEtudiant(
-        nom,
-        prenom,
+        capitalizeFirstLetter(nom),
+        capitalizeFirstLetter(prenom),
         dob,
         formattedCin,
         formattedDateCin,
@@ -595,17 +600,19 @@ const AddingEtudiant = () => {
       ></LinearGradient>
       <ScrollView style={styles.container}>
         <View style={[styles.contFainer, { marginTop: 40 }]}>
-          {imageUri ? (
-            <Image
-              source={{ uri: imageUri }}
-              style={[styles.image, styles.shadow]}
-            />
-          ) : (
-            <Image
-              source={profilePlaceholder}
-              style={[styles.image, styles.shadow]}
-            />
-          )}
+          <View style={styles.imageContainer}>
+            {imageUri ? (
+              <Image
+                source={{ uri: imageUri }}
+                style={[styles.image, styles.shadow]}
+              />
+            ) : (
+              <Image
+                source={profilePlaceholder}
+                style={[styles.image, styles.shadow]}
+              />
+            )}
+          </View>
           <TouchableOpacity
             onPress={openImagePicker}
             activeOpacity={0.7}
@@ -780,7 +787,7 @@ const AddingEtudiant = () => {
               <DateTimePicker
                 value={dob}
                 mode="date"
-                display="default"
+                display="spinner"
                 onChange={onChangeDob}
               />
             )}
@@ -1068,7 +1075,7 @@ const AddingEtudiant = () => {
               <DateTimePicker
                 value={cin_date}
                 mode="date"
-                display="default"
+                display="spinner"
                 onChange={onChangeCinDate}
               />
             )}
@@ -1145,6 +1152,21 @@ const styles = StyleSheet.create({
   },
   namewidth: {
     width: "100%",
+  },
+  imageContainer: {
+    backgroundColor: "white",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 1,
+    borderRadius: 200,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 10,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 10,
+    elevation: 10,
   },
   image: {
     width: 170,

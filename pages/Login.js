@@ -38,7 +38,7 @@ const LoginScreen = ({ navigation }) => {
         setLoading(false);
       }
     } catch (err) {
-      setHasConnection(false);
+      setEreur("Mot de passe ou non d'utilisateur incorrect");
       setLoading(false);
     } finally {
       setLoading(false);
@@ -129,7 +129,7 @@ const LoginScreen = ({ navigation }) => {
         <View style={styles.erroContainer}>
           <Text style={styles.errorMessage}>{ereur}</Text>
         </View>
-        <TouchableOpacity onPress={handleLogin} style={styles.button}>
+        <TouchableOpacity onPress={handleLogin} style={styles.button} activeOpacity={0.8}>
           <Text style={styles.textButton}>SE CONNECTER</Text>
         </TouchableOpacity>
       </View>

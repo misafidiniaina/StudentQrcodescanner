@@ -284,6 +284,7 @@ const AdminDashboard = ({ route }) => {
       )}
       <TouchableOpacity
         style={[styles.addEtudiant, styles.shadow]}
+        activeOpacity={0.8}
         onPress={handleAddButton}
       >
         <Text style={styles.addText}>+</Text>
@@ -364,10 +365,17 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   left: {
-    width: "20%",
+    height: 50,
     justifyContent: "center",
     alignItems: "center",
-    paddingLeft: 10,
+    marginLeft: 10,
+    backgroundColor: "white",
+    borderRadius: 200,
+    aspectRatio: 1,
+    shadowColor: "#000",
+    shadowOpacity: 0.25,
+    shadowRadius: 10,
+    elevation: 3,
   },
   right: {
     width: "80%",

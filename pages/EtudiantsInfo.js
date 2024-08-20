@@ -22,6 +22,8 @@ import {
   formatCin,
   formatPhoneNumber,
   printableDate,
+  makeUpperCase,
+  capitalizeFirstLetter
 } from "../utils/Utils";
 import QRCode from "react-native-qrcode-svg";
 import * as FileSystem from "expo-file-system";
@@ -207,7 +209,11 @@ const EtudiantsInfo = ({ route }) => {
       <ScrollView style={styles.container}>
         <View style={[styles.section, styles.informationSection]}>
           {isEditable && (
-            <TouchableOpacity style={styles.editingBtn} onPress={handleEditBtn}>
+            <TouchableOpacity
+              style={styles.editingBtn}
+              onPress={handleEditBtn}
+              activeOpacity={0.8}
+            >
               <Svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="29"
@@ -230,20 +236,22 @@ const EtudiantsInfo = ({ route }) => {
               </Svg>
             </TouchableOpacity>
           )}
+          <View style={styles.imageConatiner}>
+            {hasProfilePicture ? (
+              <Image
+                source={{
+                  uri: `${EXPO_PUBLIC_API_BASE_URL}:${EXPO_PUBLIC_API_PORT}${student.profilePicture.path}`,
+                }}
+                style={styles.image}
+              />
+            ) : (
+              <Image source={profilePlaceholder} style={styles.image} />
+            )}
+          </View>
 
-          {hasProfilePicture ? (
-            <Image
-              source={{
-                uri: `${EXPO_PUBLIC_API_BASE_URL}:${EXPO_PUBLIC_API_PORT}${student.profilePicture.path}`,
-              }}
-              style={styles.image}
-            />
-          ) : (
-            <Image source={profilePlaceholder} style={styles.image} />
-          )}
           <View style={styles.nameSection}>
-            <Text style={styles.nom}>{student.nom}</Text>
-            <Text style={styles.prenom}>{student.prenom}</Text>
+            <Text style={styles.nom}>{makeUpperCase(student.nom)}</Text>
+            <Text style={styles.prenom}>{capitalizeFirstLetter(student.prenom)}</Text>
           </View>
           <View style={styles.classSection}>
             <Text style={styles.matricule}>N°: {student.matricule} |</Text>
@@ -264,7 +272,7 @@ const EtudiantsInfo = ({ route }) => {
               getRef={(ref) => (qrCodeRef.current = ref)}
             />
             <View style={styles.qrCodeActionContainer}>
-              <TouchableOpacity style={styles.qrCodeAction}>
+              <TouchableOpacity style={styles.qrCodeAction} activeOpacity={0.8}>
                 <Icon name="info" size={25} color={colors.primary} />
               </TouchableOpacity>
               <TouchableOpacity style={styles.qrCodeAction}>
@@ -273,6 +281,7 @@ const EtudiantsInfo = ({ route }) => {
                   size={25}
                   color={colors.primary}
                   onPress={handleShare}
+                  activeOpacity={0.8}
                 />
               </TouchableOpacity>
               {loadingQRCode ? (
@@ -288,6 +297,7 @@ const EtudiantsInfo = ({ route }) => {
                 <TouchableOpacity
                   style={styles.qrCodeAction}
                   onPress={handleDownload}
+                  activeOpacity={0.8}
                 >
                   <Icon name="download" size={25} color={colors.primary} />
                 </TouchableOpacity>
@@ -301,7 +311,7 @@ const EtudiantsInfo = ({ route }) => {
               </View>
               <Text style={styles.info}>{printableDate(student.dob)}</Text>
             </View>
-            <View style={[styles.sectionLine, {marginTop: 5}]}>
+            <View style={[styles.sectionLine, { marginTop: 5 }]}>
               <View style={styles.left}>
                 <FontAwesome name="intersex" size={15} />
               </View>
@@ -346,7 +356,11 @@ const EtudiantsInfo = ({ route }) => {
             </View>
           </View>
           <View style={styles.buttonContainer}>
-            <TouchableOpacity style={styles.button} onPress={createPDF}>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={createPDF}
+              activeOpacity={0.8}
+            >
               {!loadingPDF ? (
                 <>
                   <FontAwesome name="download" size={20} color={"white"} />
@@ -373,11 +387,34 @@ const styles = StyleSheet.create({
     paddingHorizontal: 30,
     paddingVertical: 20,
   },
+  imageConatiner: {
+    backgroundColor: "white",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 2,
+    borderRadius: 200,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 10,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 10,
+    elevation: 7,
+  },
   image: {
     width: 120,
     height: 120,
     borderRadius: 200,
     backgroundColor: "white",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 10,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 10,
+    elevation: 10,
   },
   circleBackground: {
     padding: 10,
