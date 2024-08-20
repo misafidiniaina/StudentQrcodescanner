@@ -23,7 +23,7 @@ import {
   formatPhoneNumber,
   printableDate,
   makeUpperCase,
-  capitalizeFirstLetter
+  capitalizeFirstLetter,
 } from "../utils/Utils";
 import QRCode from "react-native-qrcode-svg";
 import * as FileSystem from "expo-file-system";
@@ -251,7 +251,9 @@ const EtudiantsInfo = ({ route }) => {
 
           <View style={styles.nameSection}>
             <Text style={styles.nom}>{makeUpperCase(student.nom)}</Text>
-            <Text style={styles.prenom}>{capitalizeFirstLetter(student.prenom)}</Text>
+            <Text style={styles.prenom}>
+              {capitalizeFirstLetter(student.prenom)}
+            </Text>
           </View>
           <View style={styles.classSection}>
             <Text style={styles.matricule}>N°: {student.matricule} |</Text>
@@ -464,10 +466,12 @@ const styles = StyleSheet.create({
   nom: {
     fontWeight: "bold",
     fontSize: 20,
+    textAlign: "center",
   },
   prenom: {
     fontWeight: "bold",
     fontSize: 20,
+    textAlign: "center",
   },
   class: {
     fontSize: 17,
