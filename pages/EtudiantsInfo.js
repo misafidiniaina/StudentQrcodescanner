@@ -125,7 +125,30 @@ const EtudiantsInfo = ({ route }) => {
       });
 
       // Share the image
-      await Sharing.shareAsync(fileUri);
+      await Sharing.shareAsync(fileUri, {
+        excludedActivityTypes: [
+          "com.apple.UIKit.activity.AirDrop",
+          "com.apple.UIKit.activity.AddToReadingList",
+          "com.apple.UIKit.activity.AssignToContact",
+          "com.apple.UIKit.activity.CopyToPasteboard",
+          "com.apple.UIKit.activity.OpenInIBooks",
+          "com.apple.UIKit.activity.Print",
+          "com.apple.UIKit.activity.SaveToCameraRoll",
+          "com.apple.UIKit.activity.MarkupAsPDF",
+          "com.apple.UIKit.activity.PostToFacebook",
+          "com.apple.UIKit.activity.PostToFlickr",
+          "com.apple.UIKit.activity.PostToTwitter",
+          "com.apple.UIKit.activity.PostToVimeo",
+          "com.apple.UIKit.activity.PostToWeibo",
+          "com.apple.UIKit.activity.SinaWeibo",
+          "com.apple.UIKit.activity.TencentWeibo",
+          "com.apple.UIKit.activity.Message",
+          "com.apple.UIKit.activity.Mail",
+        ],
+        mimeType: "image/png",
+        dialogTitle: "Share QR Code",
+        UTI: "image/png",
+      });
     } catch (error) {
       ToastAndroid.show(
         "Une erreur est survenue, Veuillez reessayer",

@@ -44,6 +44,7 @@ const AdminDashboard = ({ route }) => {
   useEffect(() => {
     if (added) {
       setStudents((prevStudents) => [...prevStudents, added]);
+      setEtudiantNumber(etudiantNumber + 1)
     }
   }, [added]);
 
